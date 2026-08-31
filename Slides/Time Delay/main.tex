@@ -1,0 +1,339 @@
+\documentclass{beamer}
+
+\input{settings.tex}
+
+
+\title{Time Delay}
+\subtitle{Advanced Control}
+\author{by Sergei Savin}
+\centering
+\date{\mydate}
+
+
+
+\begin{document}
+\maketitle
+
+
+%\begin{frame}{Content}
+%\begin{itemize}
+%\item Critical point (node)
+%\item Stability
+%\item Asymptotic stability
+%\item Stability vs Asymptotic stability
+%\item LTI and autonomous LTI
+%\item Stability of autonomous LTI
+%\item Read more
+%\end{itemize}
+%
+%\end{frame}
+
+
+
+\begin{frame}{Autonomous LTI system with delay}
+	\begin{flushleft}
+		
+		Consider an autonomous delayed LTI system:
+		
+		\begin{equation}
+			\dot{\mathbf{x}}(t) = \mathbf{A} \mathbf{x}(t) + \mathbf{A}_d \mathbf{x}(t - \delta)
+		\end{equation}
+		
+		where $\delta > 0$ is a time delay. This is a \emph{delayed differential equation (DDE)}.
+		
+		\bigskip
+		
+		We can pose the following questions:
+		
+		\begin{itemize}
+			\item How do we solve it?
+			
+			\item How do we analyze stability of the systems of this type?
+			
+			\item How do we design control for these systems?
+		\end{itemize}
+		
+		
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{Solution - method of steps}
+	\begin{flushleft}
+		{\small
+		Consider a scalar pure delay system:
+		
+		\begin{equation}
+			\dot{x}(t) = a x(t - \delta)
+		\end{equation}
+		
+		
+		In order to solve this system (simulate it forward) we can use a \emph{method of steps}. We specify an initial history function  $\phi(t)$ (which acts as initia conditions) defined on the interval $[ -\delta, \  0]$. Note that for an ODE, initial conditions is a number; for DDE, the initial conditions is a function, the "initial history".
+		
+		\bigskip
+		
+		We solve the system forward on the interval $[0, \ \delta]$. On the latter interval, the DDE becomes an ODE:
+		
+		\begin{equation}
+			\dot{x}(t) = a \phi(t - \delta),
+		\end{equation}
+		
+		which has an exact solution on the interval:
+		
+		\begin{equation}
+			x(t) = \phi(0) + a \int_{0}^{t} \phi(\tau - \delta) d \tau.
+		\end{equation}
+		
+		Doing the same for other intervals, e.g. $[\delta, \ 2\delta]$ allows us to solve the system forward. More in the appendix.
+		}
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Exponential solutions}
+	\begin{flushleft}
+		
+		Let us consider an exponential solution of the scalar DDE:
+		
+		\begin{equation}
+			x(t) = e^{s t}
+		\end{equation}
+		
+		Substituting to the DDE we get:
+		
+		\begin{equation}
+			s e^{s t} = a e^{s (t - \delta)}
+		\end{equation}
+		
+		Since $e^{s (t - \delta)} = e^{st} e^{-s\delta} $ we can simplify:
+		
+		\begin{equation}
+			s  = a e^{-s\delta} 
+		\end{equation}
+		
+		This is a \emph{characteristic equation} of the DDE. %Exponential solutions form a basis in the solution space of this DDE. Any particular solution to the original DDE will be a linear combination of this infinite family of solutions.
+		
+		Note that $s  = a e^{-s\delta} $ has infinitely many complex roots, each corresponding to a valid solution. 
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+
+
+
+\begin{frame}{Stability}
+	\begin{flushleft}
+		
+		A solution of a linear DDE can represented as a weighted sum of its exponential solutions, associated with the roots $s_i$:
+		
+		\begin{equation}
+			x(t) = \sum_{i=1}^\infty c_i e^{s_i t}
+		\end{equation}
+		
+		If at least one of the roots $s_i$ has a positive real part, the system is unstable.
+		
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+
+\begin{frame}{LTI System with delay}
+\begin{flushleft}
+
+Consider the following LTI with an input delay:
+
+\begin{equation}
+    \dot{\mathbf{x}}(t) = \mathbf{A} \mathbf{x}(t) + \mathbf{B} \mathbf{u}(t - \delta)
+\end{equation}
+
+where $\delta > 0$ is a constant time delay.
+
+\bigskip
+
+Let us propose a linear control law:
+
+\begin{equation}
+	\mathbf{u}(t) = -\mathbf{K} \mathbf{x}(t)
+\end{equation}
+
+\bigskip
+
+The closed-loop system is: 
+
+\begin{equation}
+	\dot{\mathbf{x}}(t) = \mathbf{A} \mathbf{x}(t) - \mathbf{B} \mathbf{K}  \mathbf{x}(t - \delta)
+\end{equation}
+
+We cannot analyse the stability of this system  by simply analysing the eigenvalues of $\mathbf{A} - \mathbf{B}\mathbf{K}$ as we do in the absence of delays.
+
+
+\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Exact stability analysis, 1}
+	\begin{flushleft}
+		
+		In order to check stability of the system, we can analyse its exponential solutions:
+		%
+		\begin{align}
+			\mathbf{x}(t) = \mathbf{v} e^{s t} 
+		\end{align}
+		
+		The DDE becomes:
+		%
+		\begin{align}
+			s \mathbf{v} e^{s t}  = \mathbf{A} \mathbf{v} e^{s t}  - \mathbf{B} \mathbf{K}\mathbf{v} e^{s (t - \delta)}
+			\\
+			s \mathbf{v}  = \mathbf{A} \mathbf{v}  - \mathbf{B} \mathbf{K}\mathbf{v} e^{-s \delta}
+			\\
+			(s\mathbf{I} - \mathbf{A} + \mathbf{B} \mathbf{K} e^{-s \delta}) \mathbf{v} = 0
+		\end{align}
+		
+		This implies that the matrix on the left has a non-trivial null-space, so:
+		%
+		\begin{align}
+			\text{det}\left(s\mathbf{I} - \mathbf{A} + \mathbf{B} \mathbf{K} e^{-s \delta} \right) = 0
+		\end{align}
+		
+		This is the characteristic equation of the DDE.
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{Exact stability analysis, 2}
+	\begin{flushleft}
+		
+		The DDE $\dot{\mathbf{x}}(t) = \mathbf{A} \mathbf{x}(t) - \mathbf{B} \mathbf{K}  \mathbf{x}(t - \delta)$ is stable if the characteristic equation:		
+		%
+		\begin{align}
+			\text{det}\left(s\mathbf{I} - \mathbf{A} + \mathbf{B} \mathbf{K} e^{-s \delta} \right) = 0
+		\end{align}
+		%
+		has roots with strictly negative real parts.
+		
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Small delay approximation}
+	\begin{flushleft}
+		
+		Consider the function $\mathbf{x}(t - \delta)$. We can define $\tau = t - \delta$ and write the Taylor expansion of $\mathbf{x}(\tau)$ around the point $\tau = t$:
+		
+		\begin{equation}
+			\mathbf{x}(\tau) = \mathbf{x}(t) + \frac{\partial \mathbf{x}}{\partial \tau} (\tau - t) + \text{h.o.t}
+		\end{equation}
+		
+		Notice that:
+		
+		\begin{equation}
+			\frac{\partial \mathbf{x}}{\partial t} = 
+			\frac{\partial \mathbf{x}}{\partial \tau} \frac{\partial \tau}{\partial t} = 
+			\frac{\partial \mathbf{x}}{\partial \tau} 
+		\end{equation}
+		
+		
+		Noting that $\tau - t = -\delta$ and dropping the higher-order terms, we get:
+		
+		\begin{equation}
+			\mathbf{x}(t - \delta) \approx \mathbf{x}(t) -\delta \frac{\partial \mathbf{x}}{\partial t}
+		\end{equation}
+		
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{Approximated closed-loop system}
+	\begin{flushleft}
+		
+		Substituting the small delay approximation, we approximate the closed-loop system:
+		
+		\begin{equation}
+			\dot{\mathbf{x}}(t) = \mathbf{A} \mathbf{x}(t) - \mathbf{B} \mathbf{K}  
+			\textcolor{myblue}{ \left(\mathbf{x}(t) -\delta \dot{\mathbf{x}}(t) \right)}
+		\end{equation}
+		
+		Now, all variables depend on current time only. Rearranging the terms we get:
+		
+		\begin{align}
+			\dot{\mathbf{x}} = \mathbf{A} \mathbf{x} - 
+			\mathbf{B} \mathbf{K}  \mathbf{x} + \delta \mathbf{B} \mathbf{K}   \dot{\mathbf{x}}
+		\\
+			\dot{\mathbf{x}} - \delta \mathbf{B} \mathbf{K}   \dot{\mathbf{x}} = (\mathbf{A} - \mathbf{B} \mathbf{K})  \mathbf{x}
+			\\
+			\dot{\mathbf{x}} = 
+			(\mathbf{I} - \delta \mathbf{B} \mathbf{K})^{-1} (\mathbf{A} - \mathbf{B} \mathbf{K})  \mathbf{x}
+		\end{align}
+		
+		With that, we can analyse the stability of the approximated system via eigenvalues of the matrix $\mathbf{M}  = (\mathbf{I} - \delta \mathbf{B} \mathbf{K})^{-1} (\mathbf{A} - \mathbf{B} \mathbf{K}) $. However, this does not guarantee the stability of the true delyed system.
+		
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+
+\begin{frame}{Literature}
+
+\begin{itemize}
+\item ***
+\end{itemize}
+
+\end{frame}
+
+
+
+\myqrframe
+
+
+\begin{frame}{Appendix: Scalar case (general)}
+	\begin{flushleft}
+		
+		
+		Previously we considered a pure-delay system $\dot{x}(t) = a_d x(t - \delta)$. Now we can generalize:
+		
+		\begin{equation}
+			\dot{x}(t) = a x(t) + a_d x(t - \delta)
+		\end{equation}
+		
+		As before, we initialize the system with a function $\phi(t)$ defined on the interval $[ -\delta, \  0]$ and solve the system forward on the interval $[0, \ \delta]$:
+		
+		\begin{equation}
+			\dot{x}(t) = a x + a_d \phi(t - \delta),
+		\end{equation}
+		
+		which has an exact solution on the interval:
+		
+		\begin{equation}
+			x(t) = e^{a t} \phi(0) + ... + a_d \int_{0}^{t} e^{a (t - \tau)} \phi(\tau - \delta) d \tau.
+		\end{equation}
+		
+		Again, doing the same for other intervals, e.g. $[\delta, \ 2\delta]$ allows us to solve the system forward.
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+\end{document}

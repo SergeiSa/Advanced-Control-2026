@@ -1,0 +1,560 @@
+\documentclass{beamer}
+
+\input{settings.tex}
+
+
+\title{Stability Certificates}
+\subtitle{Advanced Control}
+\author{by Sergei Savin}
+\centering
+\date{\mydate}
+
+
+
+\begin{document}
+\maketitle
+
+
+\begin{frame}{Content}
+\begin{itemize}
+	\item Fixed Points of Nonlinear Systems: 1D
+	\item Local Stability of a Fixed Point
+	\item Local Analysis Through Linearization
+	\item 1D Linearization Test
+	\item When the Linearization Vanishes
+	\item Exponential Stability
+	\item Local and Global Stability
+	\item Lyapunov Criteria for Global Stability
+	\item Example: Global Asymptotic Stability
+	\item Local Lyapunov Stability Criteria
+	\item Lyapunov Criterion for Local Exponential Stability
+	\item Example: Local Exponential Stability
+\end{itemize}
+
+\end{frame}
+
+
+
+
+\begin{frame}{Fixed Points of Nonlinear Systems: 1D}
+	\begin{flushleft}
+	Consider the linear scalar system
+	\[
+	\dot{x} = ax, \qquad a \neq 0.
+	\]
+	
+	A fixed point (or equilibrium) satisfies $	\dot{x} = 0$. The linear system has the \textbf{unique fixed point} $x^\star = 0$.
+	
+	%\vspace{0.3cm}
+	\bigskip
+	
+	For a nonlinear system,
+	\[
+	\dot{x} = f(x),
+	\]
+	there may be \textbf{several fixed points}, obtained from $f(x^\star)=0$. 
+	
+	
+	%\vspace{0.3cm}
+	\bigskip
+	
+
+	For example, the following system:
+		\[
+		\dot{x} = -x+x^3 = x(x-1)(x+1).
+		\]
+	    has three fixed points $x^\star \in \{-1,\,0,\,1\}$.
+
+	
+	\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Local Stability of a Fixed Point}
+	\begin{flushleft}
+	
+	Consider $\dot{x}=f(x)$  and let \(x^\star\) be a fixed point: $f(x^\star)=0$.
+	
+	\begin{block}{Local stability in the sense of Lyapunov}
+		The equilibrium \(x^\star\) is \textbf{locally stable} if, for every
+		\(\varepsilon>0\), there exists \(\delta>0\) such that
+		\[
+		|x(0)-x^\star|<\delta
+		\quad\Longrightarrow\quad
+		|x(t)-x^\star|<\varepsilon,
+		\qquad \forall t\geq 0.
+		\]
+	\end{block}
+	
+	\vspace{0.2cm}
+	
+	\begin{block}{Local asymptotic stability}
+		The equilibrium \(x^\star\) is \textbf{locally asymptotically stable (AS)}
+		if:
+		
+		\begin{enumerate}
+			\item \(x^\star\) is locally stable;
+			\item there exists a neighborhood of \(x^\star\) such that
+			\[
+			x(0)\ \text{in this neighborhood}
+			\quad\Longrightarrow\quad
+			\lim_{t\to\infty}x(t)=x^\star.
+			\]
+		\end{enumerate}
+	\end{block}
+	
+\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Local Analysis Through Linearization}
+	\begin{flushleft}
+	\begin{adjustwidth}{-0.5cm}{-0.5cm}
+		
+	Given $\dot{x}=f(x)$ with a fixed point \(x^\star\). Introduce a small perturbation:
+	\[
+	\xi = x-x^\star.
+	\]
+	
+	Then $x=x^\star+\xi$ and a Taylor expansion gives:
+	\[
+	f(x^\star+\xi)
+	=
+	f(x^\star)
+	+
+	\frac{df}{dx}(x^\star)\xi
+	+
+	\mathcal{O}(\xi^2).
+	\]
+	
+	Since \(f(x^\star)=0\) and $\dot{\xi} = f(x^\star+\xi)$:
+	%
+	\begin{align*}
+	\dot{\xi}
+	=
+	\frac{df}{dx}(x^\star)\xi
+	+
+	\mathcal{O}(\xi^2).
+	\end{align*}
+	%
+	\vspace{-0.9em}
+	\begin{block}{Local linear approximation}
+		For sufficiently small perturbations \(\xi\), if $\frac{df}{dx}(x^\star)\neq 0$, the linear term dominates:
+		\[
+			\dot{\xi}
+			\approx
+			\frac{df}{dx}(x^\star)\xi
+		\]
+	\end{block}
+	
+	Local behavior $\leftrightarrow$  the derivative of	\(f\) at the equilibrium.
+	
+	\end{adjustwidth}
+\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{1D Linearization Test}
+	\begin{flushleft}
+		\begin{adjustwidth}{-0.5cm}{-0.5cm}
+	
+	Given $\dot{x}=f(x)$ with a fixed point \(x^\star\). The linearized dynamics are:
+	\[
+	\dot{\xi}=f'(x^\star)\xi.
+	\]
+	
+	\begin{block}{Local stability test in 1D}
+		\[
+			\begin{array}{rcl}
+				f'(x^\star)<0
+				&\Longrightarrow&
+				x^\star\ \text{is locally asymptotically stable},\\[0.2cm]
+				f'(x^\star)>0
+				&\Longrightarrow&
+				x^\star\ \text{is unstable},\\[0.2cm]
+				f'(x^\star)=0
+				&\Longrightarrow&
+				\text{linearization is inconclusive.}
+			\end{array}
+		\]
+	\end{block}
+	
+	%\vspace{0.3cm}
+	
+	For a linear system
+	\[
+	\dot{x}=ax,
+	\]
+	we have $f(x)=ax$ and $f'(x)=a$. Thus, the familiar linear stability condition:
+	\[
+	a<0
+	\]
+	is exactly the same derivative-based condition.
+	
+	\end{adjustwidth}
+\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{When the Linearization Vanishes}
+	\begin{flushleft}
+		\begin{adjustwidth}{-0.7cm}{-0.7cm}
+	
+	Suppose that $f(x^\star)=0$ and $f'(x^\star)=0$. Then we must examine higher-order terms. Let \(k\geq 2\) be the order of the first nonzero derivative:
+	\[
+	f^{(1)}(x^\star)=\cdots=f^{(k-1)}(x^\star)=0,
+	\qquad
+	f^{(k)}(x^\star)\neq 0.
+	\]
+	
+	Locally,
+	\[
+	\dot{\xi}
+	\approx
+	\frac{f^{(k)}(x^\star)}{k!}\xi^k.
+	\]
+	
+
+\begin{block}{Local stability test in 1D}
+	\vspace{-0.9em}
+	\[\begin{array}{rcl}
+		k \text{ is even}
+		&\Longrightarrow&
+		x^\star\ \text{is unstable},\\[0.2cm]
+		f^{(k)}(x^\star)>0
+		&\Longrightarrow&
+		x^\star\ \text{is unstable},\\[0.2cm]
+		k \text{ is odd and } f^{(k)}(x^\star)< 0 
+		&\Longrightarrow&
+		\text{locally asymptotically stable.}
+	\end{array}
+	\]
+\end{block}
+	
+	Applying it to $\dot{x}=-x^3$ we find that it is asymptotically stable.
+	
+	\end{adjustwidth}
+\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{Exponential Stability, 1}
+	\begin{flushleft}
+	Asymptotic stability only requires $x(t)\to x^\star$ as $t\to\infty$. A stronger property is exponential stability.
+	
+	\begin{block}{Local exponential stability}
+		An equilibrium \(x^\star\) is \textbf{locally exponentially stable (ES)}
+		if there exist constants
+		\[
+		c>0,\qquad \lambda>0,\qquad \delta>0
+		\]
+		such that
+		\[
+		|x(0)-x^\star|<\delta
+		\]
+		implies
+		\[
+		\boxed{
+			|x(t)-x^\star|
+			\leq
+			c e^{-\lambda t}|x(0)-x^\star|,
+			\qquad \forall t\geq 0.
+		}
+		\]
+	\end{block}
+
+	
+	\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Exponential Stability, 2}
+	\begin{flushleft}
+		
+		For a linear time-invariant system $\dot{x}=Ax$ asymptotic stability implies exponential stability:
+		
+		\[
+		\boxed{\text{AS} \iff \text{ES}.}
+		\]
+		
+		For nonlinear systems, however,
+			\[
+			\boxed{\text{ES} \Longrightarrow \text{AS},
+				\qquad
+				\text{but AS} \centernot\Longrightarrow \text{ES}.}
+			\]
+		
+		The system
+		\[
+		\dot{x}=-x^3 
+		\quad \text{with the solution:} \quad
+		x(t)
+		=
+		\frac{x(0)}
+		{\sqrt{1+2x(0)^2t}},
+		\]
+		is an example: it is asymptotically stable, but its decay
+		\[
+		|x(t)|\sim t^{-1/2}
+		\]
+		is polynomial, not exponential.
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{Local and Global Stability}
+	\begin{flushleft}
+		
+		The distinction between \textbf{local} and \textbf{global} stability concerns
+		the set of initial conditions for which the stability property holds.
+		
+		\begin{block}{Local vs.\ global}
+			An equilibrium \(x^\star\) has a given stability property \textbf{locally}
+			if there exists a neighborhood \(\mathcal{N}\) of \(x^\star\) such that the
+			property holds for all \(x(0)\in\mathcal{N}\).
+			
+			It has the property \textbf{globally} if it holds for every
+			\(x(0)\in\mathbb{R}^n\).
+		\end{block}
+		
+		Examples:
+		\[
+		\dot{x}=-x,\qquad \dot{x}=-x^3
+		\]
+		are globally asymptotically stable, whereas
+		\[
+		\dot{x}=-x+x^3
+		\]
+		is only locally asymptotically stable at \(x^\star=0\).
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{Lyapunov Criteria for Global Stability}
+	\begin{flushleft}
+		
+		Consider
+		\[
+		\dot{x}=f(x), \qquad f(0)=0,
+		\]
+		and suppose there exists a continuously differentiable function
+		\(V:\mathbb{R}^n\rightarrow\mathbb{R}\) such that
+		\[
+		V(0)=0, \qquad V(x)>0 \quad \forall x\neq 0,
+		\]
+		and \(V\) is \textbf{radially unbounded}:
+		\[
+		\|x\|\rightarrow\infty
+		\quad\Longrightarrow\quad
+		V(x)\rightarrow\infty.
+		\]
+		
+	\hspace*{-0.5cm}
+			\begin{minipage}{1.1\textwidth} 
+		\begin{block}{Global Lyapunov criteria}
+	\[
+	\dot V(x)\leq 0
+	\quad\Longrightarrow\quad
+	x^\star=0\ \text{is globally stable},
+	\]
+	\[
+	\dot V(x)<0,\quad \forall x\neq0
+	\quad\Longrightarrow\quad
+	x^\star=0\ \text{is globally asymptotically stable.}
+	\]
+\end{block}
+			\end{minipage}
+		
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{Example: Global Asymptotic Stability}
+	\begin{flushleft}
+		
+		Consider
+		\[
+		\dot{x}=-x^3,
+		\qquad x^\star=0.
+		\]
+		
+		Choose the Lyapunov function
+		\[
+		V(x)=\frac{1}{2}x^2.
+		\]
+		
+		Clearly $V(x)>0$ for all $x\neq0$, and $V(x)\rightarrow\infty$ as $|x|\rightarrow\infty$.
+		
+		Its derivative along trajectories is
+		\[
+		\dot V(x)
+		=
+		x\dot{x}
+		=
+		-x^4<0,
+		\qquad x\neq0.
+		\]
+		
+		\[
+		\boxed{\text{So, }  x^\star=0\ \text{is globally asymptotically stable}.}
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Local Lyapunov Stability Criteria}
+	\begin{flushleft}
+		Consider $\dot{x}=f(x)$, with $f(0)=0$. Suppose there exists a continuously differentiable function \(V(x)\)
+		and a neighborhood \(\mathcal{N}\) of \(0\) such that
+		\[
+		V(0)=0,
+		\qquad
+		V(x)>0 \quad \forall x\in\mathcal{N}\setminus\{0\}.
+		\]
+		
+		\hspace*{-0.5cm}
+		\begin{minipage}{1.1\textwidth} 
+		\begin{block}{Local Lyapunov criteria}
+			\[
+			\dot V(x)\leq0
+			\quad \forall x\in\mathcal{N}
+			\quad\Longrightarrow\quad
+			x^\star=0\ \text{is locally stable},
+			\]
+			\[
+			\dot V(x)<0
+			\quad \forall x\in\mathcal{N}\setminus\{0\}
+			\quad\Longrightarrow\quad
+			x^\star=0\ \text{is locally asymptotically stable}
+			\]
+		\end{block}
+	\end{minipage}
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{Lyapunov Criterion for Local Exponential Stability}
+	\begin{flushleft}
+		Consider $\dot{x}=f(x)$, with $f(0)=0$. Suppose that in some neighborhood \(\mathcal{N}\) of \(0\), there exist
+		constants
+		\[
+		c_1>0,\qquad c_2>0,\qquad c_3>0
+		\]
+		such that
+		\[
+		c_1\|x\|^2
+		\leq
+		V(x)
+		\leq
+		c_2\|x\|^2,
+		\]
+		and
+		\[
+		\dot V(x)
+		\leq
+		-c_3\|x\|^2.
+		\]
+		
+		\begin{block}{Lyapunov criterion}
+			If these inequalities hold locally, then \(x^\star=0\) is
+			\textbf{locally exponentially stable}.
+		\end{block}
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Example: Local Exponential Stability}
+	\begin{flushleft}
+		Consider
+		\[
+		\dot{x}=-x+x^3,
+		\qquad x^\star=0.
+		\]
+		
+		Choose
+		\[
+		V(x)=\frac{1}{2}x^2.
+		\]
+		Then
+		\[
+		\frac{1}{2}x^2=V(x),
+		\]
+		and
+		\[
+		\dot V(x)
+		=
+		x(-x+x^3)
+		=
+		-x^2+x^4
+		=
+		-(1-x^2)x^2.
+		\]
+		
+		For \(|x|<\frac{1}{\sqrt{2}}\),
+		\[
+		\dot V(x)\leq-\frac{1}{2}x^2=-V(x).
+		\]
+		
+		\[
+		\boxed{x^\star=0\ \text{is locally exponentially stable}.}
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+
+
+
+\begin{frame}{Literature}
+
+\begin{itemize}
+	
+	\item Kostas Margellos -- Nonlinear Systems (University of Oxford): \bref{https://kostasmargellos.github.io/assets/downloads/notes/C21_NonlinearSystems_LectureNotes.pdf}
+	{C21 Nonlinear Systems}
+	
+	
+	\item MIT OpenCourseWare -- Dynamics of Nonlinear Systems: \bref{https://ocw.mit.edu/courses/6-243j-dynamics-of-nonlinear-systems-fall-2003/resources/lec8_6243_2003/}
+	{Lecture 8: Local Behavior at Eqilibria.}
+	
+	
+	
+\end{itemize}
+
+\end{frame}
+
+
+
+\myqrframe
+
+
+
+
+
+\end{document}

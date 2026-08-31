@@ -1,0 +1,352 @@
+\documentclass{beamer}
+
+\input{settings.tex}
+
+
+\title{Control Theory: recap}
+\subtitle{Advanced Control}
+\author{by Sergei Savin}
+\centering
+\date{\mydate}
+
+
+
+\begin{document}
+\maketitle
+
+\begin{frame}{Content}
+	\begin{itemize}
+		\item Plants and Dynamical Systems
+		\item Autonomous and Controlled Plants
+		\item Controllers and State Feedback
+		\item Closed-Loop Systems
+		\item Motivation for Controller Design and Asymptotic Stability
+		\item Linear Time-Invariant (LTI) Systems
+		\item Stability of Linear Systems
+		\item Stabilizing Control Design
+		\item Gain Tuning Methods: Pole Placement and LQR
+		\item Linearization of Nonlinear Systems
+		\item Limitations of Linearization-Based Control
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Plants and Dynamical Systems}
+	\begin{flushleft}
+		
+		A \textbf{plant} is a physical system whose behaviour evolves over time.
+		We describe it using a differential equation
+		\[
+		\dot{x}=f(x,u),
+		\]
+		where \(x\) is the \textbf{state} of the plant and \(u\) is its \textbf{input}.
+		
+		\bigskip
+		
+		{\mycolor{mydarkblue}
+			
+		\textbf{Example: Serial RC circuit}
+		
+		Let \(x\) be the voltage across the capacitor and \(u\) the input voltage.
+		Then
+		\[
+		\dot{x}=-\frac{1}{RC}x+\frac{1}{RC}u.
+		\]
+	}
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Autonomous and Controlled Plants}
+	\begin{flushleft}
+		
+		A plant described by
+		\[
+		\dot{x}=f(x)
+		\]
+		has no external control input. Such a system is called \textbf{autonomous}.
+		
+		\bigskip
+		
+		A plant described by \(\dot{x}=f(x,u)\) has an input \(u\) that can influence
+		its behaviour. Behavious of an autonomous system on the other hand, is determined by its current state only.
+		
+		\bigskip
+		
+		{\mycolor{mydarkblue}
+			
+		\textbf{Examples:}
+		
+		\begin{itemize}
+			\item  A DC motor is a plant with an input: we can apply a voltage to control it.
+			\item A free pendulum is autonomous: its motion evolves according to its current state, without any control input.
+		\end{itemize}
+	}
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Controllers}
+	\begin{flushleft}
+		
+		A \textbf{controller} is a rule that determines which input to apply to a plant.
+		
+		For a state-feedback controller, we write
+		\[
+		u=g(x).
+		\]
+		In other words, the controller observes the current state \(x\) and decides
+		what control input \(u\) to apply.
+		
+		\bigskip
+		
+		{\mycolor{mydarkblue}
+		\textbf{Example: Position control of a DC motor}
+		
+		A proportional controller
+		\[
+		u=-k_p(\varphi-\varphi^\star)
+		\]
+		applies a voltage proportional to the position error.
+	}
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Closed-Loop Systems}
+	\begin{flushleft}
+		
+		Consider a plant with an input:
+		\[
+		\dot{x}=f(x,u).
+		\]
+		If we connect it to a controller \(u=g(x)\), then
+		\[
+		\dot{x}=f\bigl(x,g(x)\bigr).
+		\]
+		
+		The resulting system is called the \textbf{closed-loop system}. Since the
+		input is now determined by the state, the closed-loop system is autonomous.
+		
+		\bigskip
+		
+		{\mycolor{mydarkblue}
+		\textbf{Example}
+		
+		A water heater with built-in temperature regulation continuously adjusts its
+		heating input based on the current temperature - autonomous closed-loop system.
+	}
+	
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Why Do We Design Controllers?}
+	\begin{flushleft}
+		
+		One of the first goals of control design is to make the closed-loop system
+		behave in a desirable way. In particular, we often want an equilibrium point \(x^\star\) to be
+		\textbf{asymptotically stable}.
+		
+		\begin{block}{Simplified definition}
+			If every solution starting sufficiently close to \(x^\star\) converges to
+			\(x^\star\), then the equilibrium is asymptotically stable.
+		\end{block}
+		
+		\bigskip
+		
+		{\mycolor{mydarkblue}
+		\textbf{Example}
+		
+		An aircraft that returns to its desired orientation after a small perturbation
+		is an example of stable closed-loop behaviour.
+	}
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Linear Systems}
+	\begin{flushleft}
+		
+		A particularly important class of plants is \textbf{linear time-invariant (LTI)}
+		systems:
+		\[
+		\dot{x}=Ax+Bu.
+		\]
+		
+		A common choice of controller is a \textbf{linear state-feedback law}
+		\[
+		u=-Kx.
+		\]
+		
+		Substituting the controller into the plant gives the closed-loop system
+		\[
+		\dot{x}=(A-BK)x.
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+\begin{frame}{Stability of Linear Systems}
+	\begin{flushleft}
+		
+		Consider an autonomous LTI system
+		\[
+		\dot{x}=Ax.
+		\]
+		
+		Its equilibrium \(x^\star=0\) is \textbf{asymptotically stable} if and only if
+		all eigenvalues of \(A\) have strictly negative real parts:
+		\[
+		\Re\{\lambda_i(A)\}<0,
+		\qquad \forall i.
+		\]
+		
+		If the system is asymptotically stable, its solutions converge to zero
+		\textbf{exponentially fast}.
+		
+	\end{flushleft}
+\end{frame}
+
+\begin{frame}{Stabilizing Control Design}
+	\begin{flushleft}
+		For the linear plant
+		\[
+		\dot{x}=Ax+Bu,
+		\]
+		and the controller \(u=-Kx\), the closed-loop system is
+		\[
+		\dot{x}=(A-BK)x.
+		\]
+		
+		The stabilizing control problem is therefore:
+			%
+		\[
+		\hspace{-0.5cm} \boxed{\text{Find }K\text{ such that all eigenvalues of }A-BK
+			\text{ have negative real parts.}}
+		\]
+		
+		We can solve this problem numerically using many algorithms, for example
+		\textbf{pole placement} or \textbf{LQR}.
+		
+	\end{flushleft}
+\end{frame}
+
+\begin{frame}{Gain Tuning Methods}
+	\begin{flushleft}
+		
+		Two common methods for finding a stabilizing feedback gain \(K\) are
+		pole placement and LQR.
+		
+		\bigskip
+		
+		\textbf{Pole placement}:
+		
+		Finds \(K\) such that the closed-loop matrix \(A-BK\) has exactly the
+		desired eigenvalues.
+		
+		\bigskip
+		
+		\textbf{Linear Quadratic Regulator (LQR)}:
+		
+		Finds \(K\) that minimizes the cost
+		\[
+		J=\int_0^\infty \left(x(t)^\top Qx(t)+u(t)^\top Ru(t)\right)dt.
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+\begin{frame}{Linearization}
+	\begin{flushleft}
+		
+		Most physical systems that we want to control are \textbf{nonlinear}.
+		
+		To apply linear control methods, we often approximate the nonlinear
+		dynamics near an operating point by a linear system.
+		
+		Consider
+		\[
+		\dot{x}=f(x,u),
+		\]
+		with an equilibrium \((x^\star,u^\star)\).
+		
+		The linearized dynamics for small deviations are
+		\[
+		\dot{x}=Ax+Bu,
+		\qquad
+		A=\left.\frac{\partial f}{\partial x}\right|_{(x^\star,u^\star)},
+		\quad
+		B=\left.\frac{\partial f}{\partial u}\right|_{(x^\star,u^\star)}
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+\begin{frame}{Limitations of Linearization-Based Control}
+	\begin{flushleft}
+		
+		Consider the nonlinear plant
+		\[
+		\dot{x}=x+x^3+u.
+		\]
+		
+		Linearizing around \(x^\star=0\) gives
+		\[
+		\dot{x}=x+u.
+		\]
+		
+		Using pole placement, we can choose
+		\[
+		u=-2x,
+		\]
+		\hspace{-0.7cm} which gives the stable linear closed-loop system with eigenvalue \(-1\):
+		\[
+		\dot{x}=-x,
+		\qquad \lambda=-1.
+		\]
+		
+		But the closed-loop form for the original nonlinear system,
+		\[
+		\dot{x}=-x+x^3.
+		\]
+		If \(x(0)>1\), then \(\dot{x}>0\), and the solution moves away from zero.
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+
+
+\begin{frame}{Literature}
+
+\begin{itemize}
+	
+	
+	\item MIT OpenCourseWare -- Feedback Control Systems: \bref{https://ocw.mit.edu/courses/16-30-feedback-control-systems-fall-2010/resources/mit16_30f10_lec05/}
+	{Lecture 5: State-Space Systems}
+	
+	\item MIT OpenCourseWare -- Feedback Control Systems: \bref{https://ocw.mit.edu/courses/16-30-feedback-control-systems-fall-2010/resources/mit16_30f10_lec18/}
+	{Lecture 18: Deterministic Linear Quadratic Regulator (LQR).}
+	
+	\item MIT OpenCourseWare -- Underactuated Robotics: \bref{https://ocw.mit.edu/courses/6-832-underactuated-robotics-spring-2009/72bc06c4dc73315bf49c28a81dc2b996_MIT6_832s09_read_ch03.pdf}
+	{Chapter 3: Linear Quadratic Regulator, with discussion of linearized dynamics and LQR state feedback.}
+	
+\end{itemize}
+
+
+\end{frame}
+
+
+
+\myqrframe
+
+
+
+
+
+\end{document}
