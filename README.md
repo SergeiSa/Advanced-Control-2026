@@ -1,79 +1,21 @@
+# Slides (EN):
+* Lecture 1 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Control%20Theory%20Recap
+* Lecture 2 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Stability%20Certificates
+
 # Slides (RU):
-* Lecture 1 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides_RU/Introduction.pdf
-* Lecture 2 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides_RU/Pseudoinverse.pdf
-* Lecture 3 - https://github.com/SergeiSa/Convex-Optimization/tree/main/Slides_RU/AnalyticSolutions
-
-  
-* Lecture 4 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/ConvexProgramming_Domain.pdf
-* Lecture 5 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/Polytopes.pdf
-* Lecture 6 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/Linear_Programming.pdf
-* Lecture 7 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/QP.pdf
-* Lecture 8 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/SOCP.pdf
-* Lecture 9 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/SDP.pdf
-* Lecture 10 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/LMI_Control.pdf
-* Lecture 11 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/RobustOptimization.pdf
-* Lecture 12 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/MICP.pdf
-* Lecture 13 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/Dual_KKT.pdf
-* Lecture 14 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/InteriorPoint.pdf
-
-* Extra 1 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/Extra_SPP.pdf
-* Extra 2 - https://github.com/SergeiSa/Convex-Optimization/blob/main/Slides/MPC.pdf
 
 
-# Reference material
 
-## Textbooks:
-* Boyd, S., and Vandenberghe, L., 2004. Convex optimization. Cambridge university press. https://web.stanford.edu/~boyd/cvxbook/bv_cvxbook.pdf
-* Kevin M.. Lynch and Park, F.C., 2017. Modern Robotics: Mechanics, Planning, and Control. Cambridge University Press. http://hades.mech.northwestern.edu/images/7/7f/MR.pdf
-* Siciliano, B., Sciavicco L. Villani L. & Oriolo G.,(2009) Robotic–Modelling, Planning and Control. https://www.academia.edu/23785978/B_Sicilliano_Robotics_Modelling_Planning_and_Control
+# Reference material:
 
-## References for lectures:
+* Control recap: 
+    - **MIT OpenCourseWare** -- Feedback Control Systems: [Lecture 5: State-Space Systems](https://ocw.mit.edu/courses/16-30-feedback-control-systems-fall-2010/resources/mit16_30f10_lec05/)
+    - **MIT OpenCourseWare** -- Feedback Control Systems: [Lecture 18: Deterministic Linear Quadratic Regulator (LQR).](https://ocw.mit.edu/courses/16-30-feedback-control-systems-fall-2010/resources/mit16_30f10_lec18/)
+    - **MIT OpenCourseWare** -- Underactuated Robotics: [Chapter 3: Linear Quadratic Regulator, with discussion of linearized dynamics and LQR state feedback.](https://ocw.mit.edu/courses/6-832-underactuated-robotics-spring-2009/72bc06c4dc73315bf49c28a81dc2b996_MIT6_832s09_read_ch03.pdf)
 
-* Subspaces: 
-    - [3Blue1Brown: Inverse matrices, column space and null space | Essence of linear algebra, chapter 7](https://www.youtube.com/watch?v=uQhTuRlWMxw)
-    - [Null Space, Column Space, Row Space](http://ksuweb.kennesaw.edu/~plaval/math3260/rowcolspaces.pdf)
-    - [Minimum Norm Solutions, Math 484: Nonlinear Programming, Mikhail Lavrov](https://faculty.math.illinois.edu/~mlavrov/docs/484-spring-2019/ch4lec4.pdf)
-    - [Orthogonality, Math 484: Nonlinear Programming, Mikhail Lavrov](https://faculty.math.illinois.edu/~mlavrov/docs/484-spring-2019/ch4lec3.pdf)
-
-* Least Squares
-    - Convex optimization, Least-squares and regression.
-
-* Domain
-    - Convex optimization, Chapter 2 Convex sets.
-
-* Convex functions
-    - Convex optimization, Chapter 3 Convex functions.
-    
-* Linear Programming
-    - Convex optimization, 4.3 Linear optimization problems
-
-* Quadratic Programming
-    - Convex optimization, 4.4 Quadratic optimization problems
-
-* QCQP:
-    - Schur complement - https://www.cis.upenn.edu/~jean/schur-comp.pdf
-
-* SOCP
-    - Convex optimization, 4.4.2 Second-order cone programming
-
-* SDP
-    - Convex optimization, 4.6.2 Semidefinite programming
-    
-* LMI in Control:
-    - Continious feedback design (+examples of dual problems) MAE598 (LMIs in Control) - https://youtu.be/iI3zRAjuG_U
-    - Discrete feedback design (+examples of dual problems and Schur complement) MAE598 (LMIs in Control) - https://youtu.be/oqXvkgSN-Zc
-    - Luenberger Observer design MAE598 (LMIs in Control) - https://youtu.be/eSY8Fwp2dQo
-
-* MICP:
-    - [Mixed-integer support in CVX 2.0](http://cvxr.com/news/2012/08/midcp/)
-    - [Footstep Planning on Uneven Terrain with Mixed-Integer Convex
-Optimization](https://groups.csail.mit.edu/robotics-center/public_papers/Deits14a.pdf)
-
-* Robust convex programming
-    - Convex optimization, Robust linear programming
-    
-* Barrier functions, KKT conditions, interior point methods
-    - [Visually Explained, The Karush–Kuhn–Tucker (KKT) Conditions and the Interior Point Method for Convex Optimization](https://youtu.be/uh1Dk68cfWs)
+* Stability Certificates
+    - **Kostas Margellos** -- Nonlinear Systems (University of Oxford): [C21 Nonlinear Systems](https://kostasmargellos.github.io/assets/downloads/notes/C21_NonlinearSystems_LectureNotes.pdf)
+    - **MIT OpenCourseWare** -- Dynamics of Nonlinear Systems: [Lecture 8: Local Behavior at Eqilibria.](https://ocw.mit.edu/courses/6-243j-dynamics-of-nonlinear-systems-fall-2003/resources/lec8_6243_2003/)
 
 
 
