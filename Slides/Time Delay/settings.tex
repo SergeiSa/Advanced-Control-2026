@@ -36,6 +36,7 @@
 \definecolor{mygreen}{RGB}{0, 200, 0}
 \definecolor{mygreen2}{RGB}{245, 255, 230}
 \definecolor{mydarkgreen}{RGB}{0, 120, 0}
+\definecolor{mydarkgreen}{RGB}{0, 120, 0}
 
 
 \definecolor{mygray}{gray}{0.8}
@@ -56,6 +57,8 @@
 
 \definecolor{mydarkcolor}{RGB}{60, 25, 155}
 \definecolor{mylightcolor}{RGB}{130, 180, 250}
+
+
 
 \setbeamertemplate{itemize items}[default]
 
@@ -99,10 +102,21 @@
 
 \renewcommand{\familydefault}{\rmdefault}
 
+
+\newcommand{\mycolor}[1] {
+\setbeamercolor{normal text}{fg={#1}} % Recolors standard body text
+\setbeamercolor{structure}{fg={#1}}   % Recolors bullets and structure items
+\usebeamercolor[fg]{normal text}      % Applies the normal text color immediately
+}
+
+
 \usepackage{amsmath}
 \usepackage{mathtools}
-\usepackage{cancel}
 
+\usepackage{cancel}
+\usepackage{centernot}
+
+\usepackage{changepage}
 \usepackage{subcaption}
 
 \usepackage{qrcode}
@@ -115,9 +129,9 @@
 
 \newcommand{\mydate}{Fall 2026}
 
-\newcommand{\mygit}{\textcolor{blue}{\href{https://github.com/SergeiSa/Control-Theory-2026}{github.com/SergeiSa/Control-Theory-2026}}}
+\newcommand{\mygit}{\textcolor{blue}{\href{https://github.com/SergeiSa/Advanced-Control-2026}{github.com/SergeiSa/Advanced-Control-2026}}}
 
-\newcommand{\myqr}{ \textcolor{black}{\qrcode[height=1.5in]{https://github.com/SergeiSa/Control-Theory-2026}}
+\newcommand{\myqr}{ \textcolor{black}{\qrcode[height=1.5in]{https://github.com/SergeiSa/Advanced-Control-2026}}
 }
 
 \newcommand{\myqrframe}{
