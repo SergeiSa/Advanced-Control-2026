@@ -12,7 +12,6 @@ jobs:
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v4
-        
       - name: Compile LaTeX document - Control Theory Recap
         uses: xu-cheng/latex-action@v4
         with:
