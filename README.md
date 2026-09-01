@@ -4,7 +4,7 @@
 
 # Slides (RU):
 
-
+* Lecture 1 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides%20RU/ControlTheoryRecap
 
 # Reference material:
 
