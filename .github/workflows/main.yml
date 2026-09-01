@@ -6,7 +6,7 @@ on:
     types:
       - closed
     branches:
-      - master
+      - main
 
 jobs:
   build_latex:
@@ -19,20 +19,20 @@ jobs:
         uses: xu-cheng/latex-action@v4
         with:
           root_file: main.tex
-          working_directory: Slides\ RU/ControlTheoryRecap/
+          working_directory: SlidesRU/ControlTheoryRecap/
           
       - name: Save Control Theory Recap artifact
         uses: actions/upload-artifact@v4
         with:
           name: Control_Theory_Recap.pdf
-          path: Slides\ RU/ControlTheoryRecap/main.pdf
+          path: SlidesRU/ControlTheoryRecap/main.pdf
           
       - name: Update compiled PDF in git repository
         if: github.event.pull_request.merged == true || github.event_name == 'push'
         run: |
-          mv "Slides RU/ControlTheoryRecap/main.pdf" "Slides RU/ControlTheoryRecap.pdf"
+          mv SlidesRU/ControlTheoryRecap/main.pdf SlidesRU/ControlTheoryRecap.pdf
           git config --global user.name 'CI PDF compiler'
           git config --global user.email '<>'
-          git add "Slides RU/ControlTheoryRecap.pdf"
-          git commit -m "Update compiled PDF - Control Theory Recap"
-          git push
+          git add SlidesRU/ControlTheoryRecap.pdf
+          git commit -m "Update compiled PDF - Control Theory Recap" || echo "No changes to commit"
+          git push || echo "Push failed or nothing to push"
