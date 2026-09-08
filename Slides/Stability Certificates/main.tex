@@ -246,6 +246,39 @@
 
 
 
+
+\begin{frame}{Example: $\dot x = -x^3$, part 1}
+	\begin{flushleft}
+
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.95\linewidth]{example1}
+		\caption{Graph of the function $\dot x = -x^3$}
+		\label{fig:example1}
+	\end{figure}
+	
+
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Example: $\dot x = -x^3$, part 2}
+	\begin{flushleft}
+		
+		\begin{figure}
+			\centering
+			\includegraphics[width=1.0\linewidth]{example2}
+			\caption{Solutions to the ODE $\dot x = -x^3$ from different initial conditions (see appendix)}
+			\label{fig:example1}
+		\end{figure}
+		
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
 \begin{frame}{Exponential Stability, 1}
 	\begin{flushleft}
 	Asymptotic stability only requires $x(t)\to x^\star$ as $t\to\infty$. A stronger property is exponential stability.
@@ -338,6 +371,37 @@
 		\dot{x}=-x+x^3
 		\]
 		is only locally asymptotically stable at \(x^\star=0\).
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{Example: $\dot x = -x+x^3$, part 1}
+	\begin{flushleft}
+		
+		\begin{figure}
+			\centering
+			\includegraphics[width=1.0\linewidth]{example4}
+			\caption{Graph of the function $\dot x = -x+x^3$}
+			\label{fig:example1}
+		\end{figure}
+		
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Example: $\dot x = -x+x^3$, part 2}
+	\begin{flushleft}
+		
+		\begin{figure}
+			\centering
+			\includegraphics[width=1.05\linewidth]{example3}
+			\caption{Solutions to the ODE $\dot x = -x+x^3$ from different initial conditions}
+			\label{fig:example1}
+		\end{figure}
+		
 		
 	\end{flushleft}
 \end{frame}
@@ -501,11 +565,9 @@
 		\]
 		Then
 		\[
-		\frac{1}{2}x^2=V(x),
-		\]
-		and
-		\[
 		\dot V(x)
+		=
+		x \dot x
 		=
 		x(-x+x^3)
 		=
@@ -522,6 +584,8 @@
 		\[
 		\boxed{x^\star=0\ \text{is locally exponentially stable}.}
 		\]
+		
+		But notice: true region of attracktion is not \(|x|<\frac{1}{\sqrt{2}}\), but \(|x|<1\).
 		
 	\end{flushleft}
 \end{frame}
@@ -553,6 +617,40 @@
 
 \myqrframe
 
+
+
+\begin{frame}
+
+{\Large Appendix}
+
+\end{frame}
+
+
+\begin{frame}{Solutions to $\dot{x}=-x^3$}
+	\begin{flushleft}
+		
+		The solutions to $\dot{x}=-x^3$, where $x(0) = x_0 > 0$ are:
+		\[
+		x(t)
+		=
+		\frac{x_0}
+		{\sqrt{1+2 x_0^2t}} 
+		= 
+		\frac{1}
+		{\sqrt{\frac{1}{x_0^2}+2t}} 
+		\]
+		
+		For $t \gg \frac{1}{x_0^2}$ the solution is similar to $\frac{1}{\sqrt{2t}}$:
+		\[
+		x(t)
+		\sim
+		\frac{1}{\sqrt{2t}}, \quad t \gg \frac{1}{x_0^2}.
+		\]
+		
+		So, any solution approaches $h(t) = \frac{1}{\sqrt{2t}}$ for large enough $t$.
+		
+	\end{flushleft}
+\end{frame}
 
 
 

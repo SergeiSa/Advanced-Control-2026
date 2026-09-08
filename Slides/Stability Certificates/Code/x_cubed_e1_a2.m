@@ -1,0 +1,128 @@
+clear; close all; clc;
+
+%% Global plotting parameters
+fontSize = 16;
+lineWidth = 2.5;
+
+%% ============================================================
+%% Figure 1: Vector field f(x) = -x^3
+%% ============================================================
+
+figure('Color','w', ...
+       'Position',[100 100 700 500]);
+
+x = linspace(-2,2,500);
+f = -x.^3;
+
+plot(x,f,'LineWidth',lineWidth);
+hold on;
+grid on;
+box on;
+
+yline(0,'k-','LineWidth',1.2);
+xline(0,'k-','LineWidth',1.2);
+
+xlabel('$x$', ...
+    'Interpreter','latex', ...
+    'FontSize',fontSize);
+
+ylabel('$\dot{x}$', ...
+    'Interpreter','latex', ...
+    'FontSize',fontSize);
+
+title('Vector field: $\dot{x}=-x^3$', ...
+    'Interpreter','latex', ...
+    'FontSize',fontSize+2);
+
+set(gca,'FontSize',fontSize);
+
+%% Add arrows indicating direction of motion
+
+x_arrows = [-1.7 -1.2 -0.7 -0.3 ...
+             0.3  0.7  1.2  1.7];
+
+for i = 1:length(x_arrows)
+
+    x0 = x_arrows(i);
+
+    % Direction of motion
+    direction = sign(-x0^3);
+
+    quiver(x0,0,...
+           0.25*direction,0,...
+           0,...
+           'k',...
+           'LineWidth',1.5,...
+           'MaxHeadSize',0.8);
+
+end
+
+% Mark equilibrium
+plot(0,0,'ko', ...
+    'MarkerFaceColor','k', ...
+    'MarkerSize',8);
+
+text(0.15,1.2,...
+    'Equilibrium',...
+    'Interpreter','latex',...
+    'FontSize',fontSize);
+
+%% ============================================================
+%% Figure 2: System trajectories
+%% ============================================================
+
+figure('Color','w', ...
+       'Position',[850 100 800 500]);
+
+x0_values = [-3, -1.5, -0.5, ...
+              0.5,  1.5,  3];
+
+t = linspace(0,10,1000);
+
+hold on;
+grid on;
+box on;
+
+for i = 1:length(x0_values)
+
+    x0 = x0_values(i);
+
+    % Exact solution:
+    % x(t) = x0 / sqrt(1 + 2*x0^2*t)
+    x_t = x0 ./ sqrt(1 + 2*x0^2*t);
+
+    plot(t,x_t,'LineWidth',lineWidth);
+
+end
+
+% asymptote = 1 ./ sqrt(2*t);
+% plot(t,asymptote,'--','LineWidth',lineWidth/2, 'Color', 'k');
+% plot(t,-asymptote,'--','LineWidth',lineWidth/2, 'Color', 'k');
+
+
+
+yline(0,'k-','LineWidth',1.2);
+
+xlabel('$t$', ...
+    'Interpreter','latex', ...
+    'FontSize',fontSize);
+
+ylabel('$x(t)$', ...
+    'Interpreter','latex', ...
+    'FontSize',fontSize);
+
+title('Trajectories converge to the origin', ...
+    'Interpreter','latex', ...
+    'FontSize',fontSize+2);
+
+set(gca,'FontSize',fontSize);
+
+legend('$x_0=-3$', ...
+       '$x_0=-1.5$', ...
+       '$x_0=-0.5$', ...
+       '$x_0=0.5$', ...
+       '$x_0=1.5$', ...
+       '$x_0=3$', ...
+       'Interpreter','latex',...
+       'FontSize',fontSize,...
+       'Location','eastoutside');
