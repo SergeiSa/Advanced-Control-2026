@@ -1,10 +1,11 @@
+# Slides (RU):
+
+* Lecture 1 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/ControlTheoryRecap.pdf
+* Lecture 2 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/StabilityCertificates.pdf
+
 # Slides (EN):
 * Lecture 1 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Control%20Theory%20Recap
 * Lecture 2 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Stability%20Certificates
-
-# Slides (RU):
-
-* Lecture 1 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/SlidesRU/ControlTheoryRecap
 
 # Reference material:
 
