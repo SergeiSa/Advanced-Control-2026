@@ -22,12 +22,18 @@ jobs:
         with:
           root_file: main.tex
           working_directory: SlidesRU/ControlTheoryRecap/
-          
+
       - name: Compile LaTeX document StabilityCertificates
         uses: xu-cheng/latex-action@v4
         with:
           root_file: main.tex
           working_directory: SlidesRU/StabilityCertificates/
+
+      - name: Compile LaTeX document SoS
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: SlidesRU/SoS/
 
 
 
@@ -46,6 +52,11 @@ jobs:
           name: StabilityCertificates.pdf
           path: SlidesRU/StabilityCertificates/main.pdf
 
+      - name: Save SoS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SoS.pdf
+          path: SlidesRU/SoS/main.pdf
 
 
 
@@ -54,12 +65,14 @@ jobs:
         run: |
           mv SlidesRU/ControlTheoryRecap/main.pdf SlidesRU/ControlTheoryRecap.pdf
           mv SlidesRU/StabilityCertificates/main.pdf SlidesRU/StabilityCertificates.pdf
+          mv SlidesRU/SoS/main.pdf SlidesRU/SoS.pdf
 
           
           git config --global user.name 'CI PDF compiler'
           git config --global user.email '<>'
           git add SlidesRU/ControlTheoryRecap.pdf
           git add SlidesRU/StabilityCertificates.pdf
+          git add SlidesRU/SoS.pdf
 
 
 
