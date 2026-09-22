@@ -1,0 +1,486 @@
+\documentclass{beamer}
+
+\input{settings.tex}
+
+
+\title{Sums of Squares Lyapunov Analysis}
+\subtitle{Advanced Control}
+\author{by Sergei Savin}
+\centering
+\date{\mydate}
+
+
+
+\begin{document}
+\maketitle
+
+
+\begin{frame}{Content}
+	\begin{itemize}
+		\item Stability as an SoS Problem
+		\item Asymptotic Stability as an SoS Problem
+		\item Exponential Stability as an SoS Problem
+		\item Quadratic Lyapunov Candidate
+		\item Non-Polynomial Systems
+		\item Stability Check for a Pendulum
+		\item Local Stability
+		\item S-Procedure
+		\item Local Asymptotic Stability via S-Procedure
+		\item Literature
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Stability as an SoS Problem}
+	\begin{flushleft}
+		A system $\dot{x}=f(x)$ is stable if there exists $V(x)$ such that:
+		\[
+		V(x)>0,\qquad V(0)=0,\qquad \dot V(x)\leq0\footnotemark
+		\]
+		
+		\bigskip
+		
+		\textbf{Notice:}
+		\begin{itemize}
+			\item The strict inequality is replaced with the bound:
+			\[
+			V(x)\geq\alpha x^\top x,\qquad \alpha>0.
+			\]
+			
+			\item Since $\dot V(x)
+			=
+			\frac{\partial V}{\partial x}f(x),$	we can write $-\frac{\partial V}{\partial x}f(x)\geq0$.
+		\end{itemize}
+		
+		\bigskip
+		
+		We can formulate the stability test as an SoS program:
+		\[
+		\begin{array}{ll}
+			\text{find} & V\\[0.2em]
+			\text{s.t.} &
+			V(x)-\alpha x^\top x\in\mathrm{SoS},\\
+			&
+			-\dfrac{\partial V}{\partial x}f(x)\in\mathrm{SoS}.
+		\end{array}
+		\]
+	\end{flushleft}
+	
+	\footnotetext{\vspace{1.0em}
+		The condition $V(x)\geq\alpha x^\top x$, $\alpha>0$ implies $V(x)\to\infty$ as $\|x\|\to\infty$.}
+\end{frame}
+
+
+\begin{frame}{Asymptotic Stability as an SoS Problem}
+	\begin{flushleft}
+		A system $\dot{x}=f(x)$	is asymptotically stable if there exists $V(x)$ such that:
+		\[
+		V(x)>0,\qquad V(0)=0,\qquad
+		\textcolor{myblue}{\dot V(x)<0}.
+		\]
+		
+		We replace the strict inequality with
+		\[
+		\dot V(x)\leq-\epsilon x^\top x,
+		\qquad \epsilon>0.
+		\]
+		
+		The resulting SoS program is:
+		\[
+		\begin{array}{ll}
+			\text{find} & V\\[0.2em]
+			\text{s.t.} &
+			V(x)-\alpha x^\top x\in\mathrm{SoS},\\
+			&
+			-\dfrac{\partial V}{\partial x}f(x)
+			\textcolor{myblue}{-\epsilon x^\top x}\in\mathrm{SoS}.
+		\end{array}
+		\]
+	\end{flushleft}
+	
+\end{frame}
+
+
+\begin{frame}{Exponential Stability as an SoS Problem}
+	\begin{flushleft}
+		A system $\dot{x}=f(x)$	is exponentially stable if there exists $V(x)$ and
+		$\alpha,\beta,\epsilon>0$ such that:
+		\[
+		\alpha x^\top x
+		\leq V(x)
+		\textcolor{myblue}{\leq \beta x^\top x},\qquad 
+		\dot V(x)\leq-\epsilon x^\top x.
+		\]
+		
+		\bigskip
+		
+		The corresponding SoS program is:
+		\[
+		\begin{array}{ll}
+			\text{find} & V\\[0.2em]
+			\text{s.t.} &
+			V(x)-\alpha x^\top x\in\mathrm{SoS},\\
+			&
+			\textcolor{myblue}{-V(x)+\beta x^\top x\in\mathrm{SoS}},\\
+			&
+			-\dfrac{\partial V}{\partial x}f(x)
+			-\epsilon x^\top x\in\mathrm{SoS}.
+		\end{array}
+		\]
+	\end{flushleft}
+	
+\end{frame}
+
+
+\begin{frame}{Quadratic Lyapunov Candidate}
+	\begin{flushleft}
+		We can simplify the process by limiting ourselves to
+		quadratic Lyapunov functions:
+		\[
+		V(x)=\frac{1}{2}x^\top Px,
+		\qquad P=P^\top.
+		\]
+		
+		For example, the stability test becomes:
+		\[
+		\begin{array}{ll}
+			\text{find} & P\\[0.2em]
+			\text{s.t.} &
+			P\succeq\alpha I,\\
+			&
+			-x^\top Pf(x)\in\mathrm{SoS}.
+		\end{array}
+		\]
+		
+		
+		Replacing the last condition with:
+		\[
+		-x^\top Pf(x)-\epsilon x^\top x\in\mathrm{SoS}
+		\]
+		verifies asymptotic and exponential stability. Indeed, for any $P\succ0$:
+		\[
+		\lambda_{\max}(P)x^\top x
+		\geq V(x)
+		\geq
+		\lambda_{\min}(P)x^\top x.
+		\]
+	\end{flushleft}
+\end{frame}
+
+\begin{frame}{Non-Polynomial Systems}
+	\begin{flushleft}
+		Many dynamical systems are non-polynomial.
+		For example, mechanical systems often include
+		trigonometric functions.
+		
+		\bigskip
+		
+		Consider a pendulum:
+		\[
+		ml^2\ddot{\theta}
+		+b\dot{\theta}
+		+mgl\sin(\theta)=0.
+		\]
+		
+		\bigskip
+		
+		Working with such systems requires a polynomial reformulation:
+		
+		\begin{itemize}
+			\item Approximate the nonlinearities using, for example,
+			\[
+			\sin(x)\approx
+			x-\frac{x^3}{3!}+\frac{x^5}{5!}.
+			\]
+			
+			\item Find an equivalent polynomial formulation,
+			possibly using additional variables and constraints:
+			\[
+			s=\sin(x),\qquad
+			c=\cos(x),\qquad
+			s^2+c^2=1.
+			\]
+		\end{itemize}
+	\end{flushleft}
+	
+\end{frame}
+
+
+\begin{frame}{Stability Check for a Pendulum, Part 1}
+	\begin{flushleft}
+		Consider a simple pendulum with all parameters equal to $1$:
+		\[
+		\ddot{\theta}+\dot{\theta}+\sin(\theta)=0.
+		\]
+		
+		\bigskip
+		
+		Define new variables:
+		\[
+		x_1=\dot{\theta},
+		\qquad
+		x_2=\sin(\theta),
+		\qquad
+		x_3=\cos(\theta)-1.
+		\]
+		
+		\bigskip
+		
+		This change of variables accomplishes four things:
+		
+		\begin{enumerate}
+			\item We transform the second-order ODE into a first-order system.
+			
+			\item We eliminate the trigonometric functions from the dynamics.
+			
+			\item The equilibrium of interest becomes $x=0$.
+			
+			\item We eliminate $\theta$ as a state variable, thus we do not need to establish connection between  $\theta$ and $x_2$ and $x_3$.
+		\end{enumerate}
+	\end{flushleft}
+	
+\end{frame}
+
+
+\begin{frame}{Stability Check for a Pendulum, Part 2}
+	\begin{flushleft}
+		In the new variables, the dynamics $\ddot{\theta}+\dot{\theta}+\sin(\theta)=0$ become
+\[
+\begin{aligned}
+	\dot{x}_1 &= -x_1-x_2, \\
+	\dot{x}_2 &= \cos(\theta)\dot{\theta} = x_1(x_3+1), \qquad  \textcolor{mygray}{\cos(\theta)=x_3+1} \\
+	\dot{x}_3 &= -\sin(\theta)\dot{\theta} = -x_1x_2,  \qquad \quad  \textcolor{mygray}{\sin(\theta)=x_2}
+\end{aligned}
+\]
+
+		
+		\bigskip
+		
+		The relation between sine and cosine is encoded by
+		\[
+		\sin^2(\theta)+\cos^2(\theta)=1.
+		\]
+		
+		Using the new variables, this becomes
+		\[
+		h(x)
+		=
+		x_2^2+(x_3+1)^2-1
+		=0.
+		\]
+		
+		\bigskip
+		
+		Thus, we obtain a polynomial system with a polynomial constraint:
+		\[
+		\boxed{
+			\dot{x}=f(x),
+			\qquad
+			h(x)=0.
+		}
+		\]
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Stability Check for a Pendulum, Part 3}
+	\begin{flushleft}
+		We can formulate the stability check using SoS programming. Importantly, the stability conditions only need to hold on the manifold
+		\[
+		h(x)=0.
+		\]
+		
+		
+		We can use polynomial multipliers to enforce this:
+		\[
+		\begin{array}{ll}
+			\text{find} & V(x),\ \lambda(x),\ \mu(x)\\[0.2em]
+			\text{s.t.}
+			&
+			V(x)-\alpha x^\top x+\mu(x)h(x)
+			\in\mathrm{SoS},
+			\\[0.4em]
+			&
+			-\dfrac{\partial V}{\partial x}f(x)
+			-\epsilon x^\top x+\lambda(x)h(x)
+			\in\mathrm{SoS}.
+		\end{array}
+		\]
+		
+		\bigskip
+		
+		Note that $\lambda(x)$ and $\mu(x)$ are arbitrary polynomial multipliers;
+		they are not required to be nonnegative. On the manifold $h(x)=0$, these conditions reduce to
+		\[
+		V(x)\geq\alpha x^\top x,
+		\qquad
+		\dot V(x)\leq-\epsilon x^\top x.
+		\]
+		
+
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Local Stability}
+	\begin{flushleft}
+		Many systems, including the pendulum, are only locally stable. To verify local stability, we require the Lyapunov conditions to hold only on a specific region $\mathcal{D}$.
+		
+		\bigskip
+		
+		Let us describe $\mathcal{D}$ as a level set of a
+		positive-definite function $W(x)$:
+		\[
+		\mathcal{D}
+		=
+		\left\{
+		x: W(x)\leq c
+		\right\},
+		\qquad c>0.
+		\]
+		
+		\bigskip
+		
+		For example, if
+		\[
+		W(x)=x^\top Px,
+		\qquad P\succ0,
+		\]
+		then
+		\[
+		\mathcal{D}
+		=
+		\left\{
+		x:x^\top Px\leq c
+		\right\}
+		\]
+		is an ellipsoid.
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{S-Procedure}
+	\begin{flushleft}
+		Suppose we want to prove that a polynomial $f(x)$ is
+		nonnegative on the set
+		\[
+		g(x)\leq0.
+		\]
+		
+		We can search for a polynomial multiplier
+		$\lambda(x)\in\mathrm{SoS}$ such that:
+		
+		\begin{align}
+			\label{eq:s-procedure}
+			f(x)+\lambda(x)g(x)\in\mathrm{SoS}.
+		\end{align}
+		
+		
+		\begin{itemize}
+			\item Equation \eqref{eq:s-procedure} implies $
+			f(x)+\lambda(x)g(x)\geq0$. For such $x$ that $g(x)\leq0$, $f(x)
+			\geq
+			-\lambda(x)g(x)
+			\geq0.$
+			
+			\item For such $x$ that $g(x)>0$, however, $-\lambda(x)g(x)\leq0$, 
+			so the condition does not imply that $f(x)\geq0$.
+		\end{itemize}
+		
+		
+		\bigskip
+		
+		This allows the SoS program to enforce $f(x)\geq0$
+		only on the desired set $g(x)\leq0$.
+	\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Local Asymptotic Stability via S-Procedure}
+	\begin{flushleft}
+		Using the S-procedure, we can restrict the positivity
+		requirement on $V(x)$ and the negativity requirement on
+		$\dot V(x)$ to a region $\mathcal{D}$. This allows us to prove \textbf{local asymptotic stability}.
+		
+		\bigskip
+		
+		A natural choice of $\mathcal{D}$ is a sublevel set of $V(x)$:
+		\[
+		\mathcal{D}
+		=
+		\left\{
+		x:V(x)\leq c
+		\right\}.
+		\]
+		
+		\bigskip
+		
+		The SoS formulation becomes
+		\[
+		\begin{array}{ll}
+			\text{find} &
+			V,\ \lambda_1,\ \lambda_2
+			\\[0.2em]
+			\text{s.t.}
+			&
+			V(x)-\alpha x^\top x
+			+\lambda_1(x)\bigl(V(x)-c\bigr)
+			\in\mathrm{SoS},
+			\\[0.4em]
+			&
+			-\dfrac{\partial V}{\partial x}f(x)
+			-\epsilon x^\top x
+			+\lambda_2(x)\bigl(V(x)-c\bigr)
+			\in\mathrm{SoS},
+			\\[0.4em]
+			&
+			\lambda_1(x)\in\mathrm{SoS},
+			\qquad
+			\lambda_2(x)\in\mathrm{SoS}.
+		\end{array}
+		\]
+		{\small
+		$\lambda_1$ and $\lambda_2$ are required to be SoS
+		(nonnegative) multipliers. The parameters $\alpha>0$
+		and $\epsilon>0$ enforce strict Lyapunov inequalities.}
+	\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Literature}
+
+\begin{itemize}
+	
+	\item Stephen Lall -- Stanford University:
+	\bref{https://lall.stanford.edu/ee464/lectures/sum_of_squares.pdf}
+	{Sum of Squares.}
+	
+		\item Russ Tedrake -- MIT:
+	\bref{https://underactuated.csail.mit.edu/lyapunov.html}
+	{Underactuated Robotics: Lyapunov Analysis, ch. 9.2.2, 9.2.6}
+	
+	\item MIT OpenCourseWare -- Algebraic Techniques and Semidefinite Optimization:
+	\bref{https://ocw.mit.edu/courses/6-972-algebraic-techniques-and-semidefinite-optimization-spring-2006/resources/lecture_10/}
+	{Lecture 10: Sums of Squares and Semidefinite Programming.}
+	
+	\item Antonis Papachristodoulou and Stephen Prajna:
+	\bref{https://users.ox.ac.uk/~engs0587/PapPACC05.pdf}
+	{A Tutorial on Sum of Squares Techniques for Systems Analysis.}
+	
+	
+\end{itemize}
+
+\end{frame}
+
+
+
+\myqrframe
+
+
+
+
+\end{document}

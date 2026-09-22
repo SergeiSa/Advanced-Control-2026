@@ -1,0 +1,486 @@
+\documentclass{beamer}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\input{settings.tex}
+
+\newcommand{\myqrframe}{
+	\begin{frame}
+		\centerline{Слайды доступны на Github:}
+		\bigskip
+		\centerline{\mygit}
+		\bigskip
+		\myqr
+	\end{frame}
+}
+
+
+\subtitle{Современные методы управления роботами}
+\author{Сергей Савин}
+\date{2026}
+
+\title{Анализ устойчивости методом суммы квадратов}
+\centering
+
+
+
+\begin{document}
+\maketitle
+
+\begin{frame}{Содержание}
+	\begin{itemize}
+		\item Устойчивость как задача SoS
+		\item Асимптотическая устойчивость как задача SoS
+		\item Экспоненциальная устойчивость как задача SoS
+		\item Квадратичная функция Ляпунова
+		\item Неполиномиальные системы
+		\item Проверка устойчивости маятника
+		\item Локальная устойчивость
+		\item S-процедура
+		\item Локальная асимптотическая устойчивость с помощью S-процедуры
+		\item Литература
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Устойчивость как задача SoS}
+	\begin{flushleft}
+		Система $\dot{x}=f(x)$ является устойчивой, если существует $V(x)$ такая, что:
+		\[
+		V(x)>0,\qquad V(0)=0,\qquad \dot V(x)\leq0\footnotemark
+		\]
+		
+		\textbf{Замечание:}
+		\begin{itemize}
+			\item Строгое неравенство заменяется ограничением:
+			\[
+			V(x)\geq\alpha x^\top x,\qquad \alpha>0.
+			\]
+			
+			\item Поскольку $\dot V(x)
+			=
+			\frac{\partial V}{\partial x}f(x),$	можно записать $-\frac{\partial V}{\partial x}f(x)\geq0$.
+		\end{itemize}
+		
+		Таким образом, критерий устойчивости можно сформулировать как SoS-задачу:
+		\[
+		\begin{array}{ll}
+			\text{find} & V\\[0.2em]
+			\text{subject to:} &
+			V(x)-\alpha x^\top x\in\mathrm{SoS},\\
+			&
+			-\dfrac{\partial V}{\partial x}f(x)\in\mathrm{SoS}.
+		\end{array}
+		\]
+	\end{flushleft}
+	
+	\footnotetext{\vspace{1.0em}
+		Условие $V(x)\geq\alpha x^\top x$, $\alpha>0$ означает, что $V(x)\to\infty$ при $\|x\|\to\infty$.}
+\end{frame}
+
+
+\begin{frame}{Асимптотическая устойчивость как задача SoS}
+	\begin{flushleft}
+		Система $\dot{x}=f(x)$	является асимптотически устойчивой, если существует $V(x)$ такая, что:
+		\[
+		V(x)>0,\qquad V(0)=0,\qquad
+		\textcolor{myblue}{\dot V(x)<0}.
+		\]
+		
+		Строгое неравенство заменяется условием
+		\[
+		\dot V(x)\leq-\epsilon x^\top x,
+		\qquad \epsilon>0.
+		\]
+		
+		Получаемая SoS-задача имеет вид:
+		\[
+		\begin{array}{ll}
+			\text{find} & V\\[0.2em]
+			\text{subject to:} &
+			V(x)-\alpha x^\top x\in\mathrm{SoS},\\
+			&
+			-\dfrac{\partial V}{\partial x}f(x)
+			\textcolor{myblue}{-\epsilon x^\top x}\in\mathrm{SoS}.
+		\end{array}
+		\]
+	\end{flushleft}
+	
+\end{frame}
+
+
+\begin{frame}{Экспоненциальная устойчивость как задача SoS}
+	\begin{flushleft}
+		Система $\dot{x}=f(x)$	является экспоненциально устойчивой, если существуют $V(x)$ и
+		$\alpha,\beta,\epsilon>0$ такие, что:
+		\[
+		\alpha x^\top x
+		\leq V(x)
+		\textcolor{myblue}{\leq \beta x^\top x},\qquad 
+		\dot V(x)\leq-\epsilon x^\top x.
+		\]
+		
+		\bigskip
+		
+		Соответствующая SoS-задача имеет вид:
+		\[
+		\begin{array}{ll}
+			\text{find} & V\\[0.2em]
+			\text{subject to:} &
+			V(x)-\alpha x^\top x\in\mathrm{SoS},\\
+			&
+			\textcolor{myblue}{-V(x)+\beta x^\top x\in\mathrm{SoS}},\\
+			&
+			-\dfrac{\partial V}{\partial x}f(x)
+			-\epsilon x^\top x\in\mathrm{SoS}.
+		\end{array}
+		\]
+	\end{flushleft}
+	
+\end{frame}
+
+
+\begin{frame}{Квадратичная функция Ляпунова}
+	\begin{flushleft}
+		Можно упростить задачу, ограничившись квадратичными функциями Ляпунова:
+		\[
+		V(x)=\frac{1}{2}x^\top Px,
+		\qquad P=P^\top.
+		\]
+		
+		Например, критерий устойчивости принимает вид:
+		\[
+		\begin{array}{ll}
+			\text{find} & P\\[0.2em]
+			\text{subject to:} &
+			P\succeq\alpha I,\\
+			&
+			-x^\top Pf(x)\in\mathrm{SoS}.
+		\end{array}
+		\]
+		
+		
+		Заменяя последнее условие на:
+		\[
+		-x^\top Pf(x)-\epsilon x^\top x\in\mathrm{SoS}
+		\]
+		мы проверяем асимптотическую и экспоненциальную устойчивость. Действительно, для любой $P\succ0$:
+		\[
+		\lambda_{\max}(P)x^\top x
+		\geq V(x)
+		\geq
+		\lambda_{\min}(P)x^\top x.
+		\]
+	\end{flushleft}
+\end{frame}
+
+\begin{frame}{Неполиномиальные системы}
+	\begin{flushleft}
+		Многие динамические системы являются неполиномиальными.
+		Например, механические системы часто содержат тригонометрические функции.
+		
+		\bigskip
+		
+		Рассмотрим маятник:
+		\[
+		ml^2\ddot{\theta}
+		+b\dot{\theta}
+		+mgl\sin(\theta)=0.
+		\]
+		
+		\bigskip
+		
+		Работа с такими системами требует полиномиальной переформулировки:
+		
+		\begin{itemize}
+			\item Аппроксимировать нелинейности, например:
+			\[
+			\sin(x)\approx
+			x-\frac{x^3}{3!}+\frac{x^5}{5!}.
+			\]
+			
+			\item Найти эквивалентную полиномиальную формулировку,
+			возможно, используя дополнительные переменные и ограничения:
+			\[
+			s=\sin(x),\qquad
+			c=\cos(x),\qquad
+			s^2+c^2=1.
+			\]
+		\end{itemize}
+	\end{flushleft}
+	
+\end{frame}
+
+
+\begin{frame}{Проверка устойчивости маятника, часть 1}
+	\begin{flushleft}
+		Рассмотрим простой маятник, у которого все параметры равны $1$:
+		\[
+		\ddot{\theta}+\dot{\theta}+\sin(\theta)=0.
+		\]
+		
+		\bigskip
+		
+		Введём новые переменные:
+		\[
+		x_1=\dot{\theta},
+		\qquad
+		x_2=\sin(\theta),
+		\qquad
+		x_3=\cos(\theta)-1.
+		\]
+		
+		\bigskip
+		
+		Эта замена переменных позволяет сделать четыре вещи:
+		
+		\begin{enumerate}
+			\item Преобразовать дифференциальное уравнение второго порядка в систему первого порядка.
+			
+			\item Исключить тригонометрические функции из динамики.
+			
+			\item Перевести интересующее нас положение равновесия в точку $x=0$.
+			
+			\item Исключить $\theta$ из числа переменных состояния, поэтому нам не нужно устанавливать связь между $\theta$ и $x_2$, $x_3$.
+		\end{enumerate}
+	\end{flushleft}
+	
+\end{frame}
+
+
+\begin{frame}{Проверка устойчивости маятника, часть 2}
+	\begin{flushleft}
+		В новых переменных динамика $\ddot{\theta}+\dot{\theta}+\sin(\theta)=0$ принимает вид:
+		\[
+		\begin{aligned}
+			\dot{x}_1 &= -x_1-x_2, \\
+			\dot{x}_2 &= \cos(\theta)\dot{\theta} = x_1(x_3+1), \qquad  \textcolor{mygray}{\cos(\theta)=x_3+1} \\
+			\dot{x}_3 &= -\sin(\theta)\dot{\theta} = -x_1x_2,  \qquad \quad  \textcolor{mygray}{\sin(\theta)=x_2}
+		\end{aligned}
+		\]
+		
+		
+		\bigskip
+		
+		Связь между синусом и косинусом задаётся соотношением
+		\[
+		\sin^2(\theta)+\cos^2(\theta)=1.
+		\]
+		
+		Используя новые переменные, это соотношение принимает вид
+		\[
+		h(x)
+		=
+		x_2^2+(x_3+1)^2-1
+		=0.
+		\]
+		
+		\bigskip
+		
+		Таким образом, мы получаем полиномиальную систему с полиномиальным ограничением:
+		\[
+		\boxed{
+			\dot{x}=f(x),
+			\qquad
+			h(x)=0.
+		}
+		\]
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Проверка устойчивости маятника, часть 3}
+	\begin{flushleft}
+		Проверку устойчивости можно сформулировать с помощью SoS-программирования. Важно, что условия устойчивости должны выполняться только на многообразии
+		\[
+		h(x)=0.
+		\]
+		
+		
+		Для этого можно использовать полиномиальные множители:
+		\[
+		\begin{array}{ll}
+			\text{find} & V(x),\ \lambda(x),\ \mu(x)\\[0.2em]
+			\text{subject to:}
+			&
+			V(x)-\alpha x^\top x+\mu(x)h(x)
+			\in\mathrm{SoS},
+			\\[0.4em]
+			&
+			-\dfrac{\partial V}{\partial x}f(x)
+			-\epsilon x^\top x+\lambda(x)h(x)
+			\in\mathrm{SoS}.
+		\end{array}
+		\]
+		
+		\bigskip
+		
+		Заметим, что $\lambda(x)$ и $\mu(x)$ являются произвольными полиномиальными множителями;
+		они не обязаны быть неотрицательными. На многообразии $h(x)=0$ эти условия сводятся к
+		\[
+		V(x)\geq\alpha x^\top x,
+		\qquad
+		\dot V(x)\leq-\epsilon x^\top x.
+		\]
+		
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Локальная устойчивость}
+	\begin{flushleft}
+		Многие системы, включая маятник, устойчивы только локально. Для проверки локальной устойчивости потребуем, чтобы условия Ляпунова выполнялись только в некоторой области $\mathcal{D}$.
+		
+		\bigskip
+		
+		Опишем $\mathcal{D}$ как множество уровня положительно определённой функции $W(x)$:
+		\[
+		\mathcal{D}
+		=
+		\left\{
+		x: W(x)\leq c
+		\right\},
+		\qquad c>0.
+		\]
+		
+		\bigskip
+		
+		Например, если
+		\[
+		W(x)=x^\top Px,
+		\qquad P\succ0,
+		\]
+		то
+		\[
+		\mathcal{D}
+		=
+		\left\{
+		x:x^\top Px\leq c
+		\right\}
+		\]
+		является эллипсоидом.
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{S-процедура}
+	\begin{flushleft}
+		Предположим, что мы хотим доказать, что полином $f(x)$ неотрицателен на множестве
+		\[
+		g(x)\leq0.
+		\]
+		
+		Мы можем искать полиномиальный множитель
+		$\lambda(x)\in\mathrm{SoS}$ такой, что:
+		
+		\begin{align}
+			\label{eq:s-procedure}
+			f(x)+\lambda(x)g(x)\in\mathrm{SoS}.
+		\end{align}
+		
+		
+		\begin{itemize}
+			\item Уравнение \eqref{eq:s-procedure} означает $
+			f(x)+\lambda(x)g(x)\geq0$. Для таких $x$, что $g(x)\leq0$, имеем $f(x)
+			\geq
+			-\lambda(x)g(x)
+			\geq0.$
+			
+			\item Однако для таких $x$, что $g(x)>0$, имеем $-\lambda(x)g(x)\leq0$, 
+			поэтому данное условие не означает, что $f(x)\geq0$.
+		\end{itemize}
+		
+		
+		\bigskip
+		
+		Это позволяет SoS-задаче обеспечивать выполнение условия $f(x)\geq0$
+		только на требуемом множестве $g(x)\leq0$.
+	\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Локальная асимптотическая устойчивость с помощью S-процедуры}
+	\begin{flushleft}
+		С помощью S-процедуры можно ограничить требование положительности
+		$V(x)$ и требование отрицательности $\dot V(x)$ некоторой областью $\mathcal{D}$. Это позволяет доказать \textbf{локальную асимптотическую устойчивость}.
+		
+		\bigskip
+		
+		Естественным выбором $\mathcal{D}$ является подуровень $V(x)$:
+		\[
+		\mathcal{D}
+		=
+		\left\{
+		x:V(x)\leq c
+		\right\}.
+		\]
+		
+		\bigskip
+		
+		SoS-формулировка принимает вид
+		\[
+		\begin{array}{ll}
+			\text{find} &
+			V,\ \lambda_1,\ \lambda_2
+			\\[0.2em]
+			\text{subject to:}
+			&
+			V(x)-\alpha x^\top x
+			+\lambda_1(x)\bigl(V(x)-c\bigr)
+			\in\mathrm{SoS},
+			\\[0.4em]
+			&
+			-\dfrac{\partial V}{\partial x}f(x)
+			-\epsilon x^\top x
+			+\lambda_2(x)\bigl(V(x)-c\bigr)
+			\in\mathrm{SoS},
+			\\[0.4em]
+			&
+			\lambda_1(x)\in\mathrm{SoS},
+			\qquad
+			\lambda_2(x)\in\mathrm{SoS}.
+		\end{array}
+		\]
+		{\small
+			$\lambda_1$ и $\lambda_2$ должны быть SoS
+			(неотрицательными) множителями. Параметры $\alpha>0$
+			и $\epsilon>0$ обеспечивают выполнение строгих неравенств Ляпунова.}
+	\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Литература}
+	
+	\begin{itemize}
+		
+		\item Stephen Lall -- Stanford University:
+		\bref{https://lall.stanford.edu/ee464/lectures/sum_of_squares.pdf}
+		{Sum of Squares.}
+		
+		\item Russ Tedrake -- MIT:
+		\bref{https://underactuated.csail.mit.edu/lyapunov.html}
+		{Underactuated Robotics: Lyapunov Analysis, ch. 9.2.2, 9.2.6}
+		
+		\item MIT OpenCourseWare -- Algebraic Techniques and Semidefinite Optimization:
+		\bref{https://ocw.mit.edu/courses/6-972-algebraic-techniques-and-semidefinite-optimization-spring-2006/resources/lecture_10/}
+		{Lecture 10: Sums of Squares and Semidefinite Programming.}
+		
+		\item Antonis Papachristodoulou and Stephen Prajna:
+		\bref{https://users.ox.ac.uk/~engs0587/PapPACC05.pdf}
+		{A Tutorial on Sum of Squares Techniques for Systems Analysis.}
+		
+		
+	\end{itemize}
+	
+\end{frame}
+
+
+\myqrframe
+
+
+\end{document}

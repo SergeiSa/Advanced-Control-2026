@@ -35,6 +35,12 @@ jobs:
           root_file: main.tex
           working_directory: SlidesRU/SoS/
 
+      - name: Compile LaTeX document SoSLyapunov
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: SlidesRU/SoSLyapunov/
+
 
 
 
@@ -44,7 +50,6 @@ jobs:
         with:
           name: ControlTheoryRecap.pdf
           path: SlidesRU/ControlTheoryRecap/main.pdf
-
 
       - name: Save StabilityCertificates artifact
         uses: actions/upload-artifact@v4
@@ -58,6 +63,12 @@ jobs:
           name: SoS.pdf
           path: SlidesRU/SoS/main.pdf
 
+      - name: Save SoSLyapunov artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SoSLyapunov.pdf
+          path: SlidesRU/SoSLyapunov/main.pdf
+
 
 
       - name: Update compiled PDFs in git repository
@@ -66,13 +77,16 @@ jobs:
           mv SlidesRU/ControlTheoryRecap/main.pdf SlidesRU/ControlTheoryRecap.pdf
           mv SlidesRU/StabilityCertificates/main.pdf SlidesRU/StabilityCertificates.pdf
           mv SlidesRU/SoS/main.pdf SlidesRU/SoS.pdf
+          mv SlidesRU/SoSLyapunov/main.pdf SlidesRU/SoSLyapunov.pdf
 
-          
+
+
           git config --global user.name 'CI PDF compiler'
           git config --global user.email '<>'
           git add SlidesRU/ControlTheoryRecap.pdf
           git add SlidesRU/StabilityCertificates.pdf
           git add SlidesRU/SoS.pdf
+          git add SlidesRU/SoSLyapunov.pdf
 
 
 
