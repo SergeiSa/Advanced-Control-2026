@@ -3,11 +3,13 @@
 * Lecture 1 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/ControlTheoryRecap.pdf
 * Lecture 2 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/StabilityCertificates.pdf
 * Lecture 3 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/SoS.pdf
+* Lecture 4 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/SoSLyapunov.pdf
 
 # Slides (EN):
 * Lecture 1 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Control%20Theory%20Recap
 * Lecture 2 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Stability%20Certificates
 * Lecture 3 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/SoS
+* Lecture 4 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/SoS%20Lyapunov
 
 # Reference material:
 
@@ -21,6 +23,12 @@
     - **MIT OpenCourseWare** -- Dynamics of Nonlinear Systems: [Lecture 8: Local Behavior at Eqilibria.](https://ocw.mit.edu/courses/6-243j-dynamics-of-nonlinear-systems-fall-2003/resources/lec8_6243_2003/)
 
 * Sum of Squares
+    - **MIT OpenCourseWare** -- Algebraic Techniques and Semidefinite Optimization: [Lecture 10: Sums of Squares and Semidefinite Programming.](https://ocw.mit.edu/courses/6-972-algebraic-techniques-and-semidefinite-optimization-spring-2006/resources/lecture_10/)
+    - **Antonis Papachristodoulou and Stephen Prajna** -- [A Tutorial on Sum of Squares Techniques for Systems Analysis.](https://users.ox.ac.uk/~engs0587/PapPACC05.pdf)
+
+* Stability Analysis via Sum of Squares
+    - **Stephen Lall** -- Stanford University: [Sum of Squares.](https://lall.stanford.edu/ee464/lectures/sum_of_squares.pdf)
+    - **Russ Tedrake** -- MIT: [Underactuated Robotics: Lyapunov Analysis, ch. 9.2.2, 9.2.6](https://underactuated.csail.mit.edu/lyapunov.html)
     - **MIT OpenCourseWare** -- Algebraic Techniques and Semidefinite Optimization: [Lecture 10: Sums of Squares and Semidefinite Programming.](https://ocw.mit.edu/courses/6-972-algebraic-techniques-and-semidefinite-optimization-spring-2006/resources/lecture_10/)
     - **Antonis Papachristodoulou and Stephen Prajna** -- [A Tutorial on Sum of Squares Techniques for Systems Analysis.](https://users.ox.ac.uk/~engs0587/PapPACC05.pdf)
 
