@@ -453,6 +453,56 @@
 
 
 
+\begin{frame}{Скорость сходимости}
+	\begin{flushleft}
+		Для экспоненциально устойчивой системы
+		\(
+		\dot{x}=f(x),
+		\)
+		с помощью SOS можно найти функцию Ляпунова, удовлетворяющую условиям
+		\(
+		\beta x^\top x
+		\le V(x)\le
+		\alpha x^\top x,
+		\qquad
+		\dot V(x)\le-\epsilon x^\top x.
+		\)
+		
+		\bigskip
+		
+		Эти неравенства дают гарантию скорости сходимости:
+		\[
+		\boxed{
+			\|x(t)\|
+			\le
+			\sqrt{\frac{\alpha}{\beta}}\,
+			e^{-\frac{\epsilon}{2\alpha}t}
+			\|x(0)\|
+		}
+		\]
+		
+		Таким образом, гарантируется экспоненциальная сходимость
+		с показателем
+		\[
+		\boxed{\rho=\frac{\epsilon}{2\alpha}}.
+		\]
+		
+		\bigskip
+		
+		Действительно, $
+		\dot V
+		\le-\epsilon x^\top x
+		\le-\frac{\epsilon}{\alpha}V
+		$, 
+		откуда следует
+		$
+		V(t)\le V(0)e^{-\frac{\epsilon}{\alpha}t}.
+		$
+	\end{flushleft}
+	
+\end{frame}
+
+
 
 \begin{frame}{Литература}
 	

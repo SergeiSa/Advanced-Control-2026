@@ -450,6 +450,54 @@
 
 
 
+\begin{frame}{Rate of Convergence}
+	\begin{flushleft}
+		For an exponentially stable system
+		\[
+		\dot{x}=f(x),
+		\]
+		SOS can be used to find a Lyapunov function satisfying
+		\[
+		\beta x^\top x
+		\le V(x)\le
+		\alpha x^\top x,
+		\qquad
+		\dot V(x)\le-\epsilon x^\top x.
+		\]
+		
+		\bigskip
+		
+		These inequalities provide a guarantee on the convergence rate:
+		\[
+		\boxed{
+			\|x(t)\|
+			\le
+			\sqrt{\frac{\alpha}{\beta}}\,
+			e^{-\frac{\epsilon}{2\alpha}t}
+			\|x(0)\|
+		}
+		\]
+		
+		Thus, the system is guaranteed to converge exponentially
+		with rate
+		\[
+		\boxed{\rho=\frac{\epsilon}{2\alpha}}.
+		\]
+		
+		\bigskip
+		
+		Indeed, $
+		\dot V
+		\le-\epsilon x^\top x
+		\le-\frac{\epsilon}{\alpha}V
+		$, 
+		which gives
+		$
+		V(t)\le V(0)e^{-\frac{\epsilon}{\alpha}t}.
+		$
+	\end{flushleft}
+\end{frame}
+
 
 \begin{frame}{Literature}
 
