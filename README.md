@@ -35,7 +35,7 @@
     - **Antonis Papachristodoulou and Stephen Prajna** -- [A Tutorial on Sum of Squares Techniques for Systems Analysis.](https://users.ox.ac.uk/~engs0587/PapPACC05.pdf)
 
 * Trajectory Planning
-- **Russ Tedrake** -- MIT: [Underactuated Robotics: Trajectory Optimization, ch. 10.](https://mit.edu)
+    - **Russ Tedrake** -- MIT: [Underactuated Robotics: Trajectory Optimization, ch. 10.](https://underactuated.mit.edu/trajopt.html)
 
 
 # For contributors:
