@@ -1,0 +1,325 @@
+\documentclass{beamer}
+
+\input{settings.tex}
+\usetikzlibrary{shapes.geometric, decorations.markings, positioning, patterns, calc, arrows.meta}
+
+
+\title{Trajectory Planning}
+\subtitle{Advanced Control}
+\author{by Sergei Savin}
+\centering
+\date{\mydate}
+
+
+
+\begin{document}
+\maketitle
+
+
+\begin{frame}{Content}
+	\begin{itemize}
+		\item Stability and Trajectory Planning
+		\item Trajectory planning -- illustration
+		\item Example: Inverted pendulum swing up
+		\item Example: Cart-Pole
+		\item Path vs.\ Trajectory
+		\item Feasible Trajectory
+		\item Trajectory Optimization
+		\item Direct Shooting
+		\item Parameterizing the Control Input
+		\item Solving Direct Shooting
+		\item Literature
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Stability and Trajectory Planning}
+	\begin{flushleft}
+	
+	For a dynamical system
+	\[
+	\dot{x}=f(x,u),
+	\]
+	we can consider two different tasks:
+	
+	\begin{enumerate}
+		\item Find a control law that takes the system
+		from an initial state $x_A$ to a desired state $x_B$.
+		
+		\item Find a control law that makes the system
+		stay near $x_B$ (or converge to it) once it has
+		arrived sufficiently close.
+	\end{enumerate}
+	
+	\vspace{0.5em}
+	
+	The second problem is the problem of
+	\textbf{stabilizing control}.
+	
+	The first problem is the problem of
+	\textbf{trajectory planning}.
+	
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Trajectory planning - illustration}
+	\begin{flushleft}
+		
+		\input{picture1.tex}
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Example Inverted pendulum swing up}
+	\begin{flushleft}
+		
+		\input{picture2.tex}
+		
+		
+		For a pendulum, we can consider two separate problems: 1) plan a trajectory that takes the pendulum from the lower equilibrium to the upper equilibrium; 2) find a control law that stabilizes the upper equilibrium.
+		
+		\bigskip
+		
+		The first problem can be challenging if the motor is weak
+		and has a small torque limit. Instead of lifting the pendulum directly, we may need to
+		\textbf{swing it up}.
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Example: Cart-Pole}
+	\begin{flushleft}
+	
+	% TODO: \usepackage{graphicx} required
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.7\linewidth]{"cartpole swing up"}
+		\label{fig:cartpole-swing-up}
+	\end{figure}
+	
+	
+	For a cart-pole, we can again consider two separate problems:1) plan a trajectory that takes the pole
+		from the lower equilibrium to the upper equilibrium; 2) find a control law that stabilizes the upper equilibrium.
+		
+		\medskip
+	
+	There is no motor directly between the cart and the pole. Therefore, we cannot simply apply a torque: instead, we must move the cart so that its motion creates \textbf{inertial forces} that swing the pole upward.
+	
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Path vs.\ Trajectory}
+	\begin{flushleft}
+	
+	Consider two states $x_A$ and $x_B$. A curve connecting them in state space is called a
+	\textbf{path}.
+	
+\bigskip
+	
+	A path tells us the sequence of states that the system should pass through, but does not specify \emph{when} those states should be reached.
+	
+	\bigskip
+	
+	A path together with its timing is called a	\textbf{trajectory}. We can denote it as $x(t)$.
+	
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Feasible Trajectory}
+	\begin{flushleft}
+	
+	Not every trajectory can actually be produced by a dynamical system. For a system with control input
+	\[
+	\dot{x}=f(x,u),
+	\]
+	a trajectory $x^*(t)$ is \emph{feasible} if there exists 	a control input $u^*(t)$ such that
+	
+	\[
+	\dot{x}^*(t)
+	=
+	f\bigl(x^*(t),u^*(t)\bigr),
+	\qquad
+	\forall t\in[0,T].
+	\]
+	
+	
+	\bigskip
+	
+	\begin{center}
+\fbox{The trajectory must satisfy the system dynamics.}
+	\end{center}
+	
+	\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{Trajectory Optimization}
+	\begin{flushleft}
+		Trajectory optimization is the problem of finding a
+		\emph{feasible trajectory} that minimizes a chosen
+		cost function.
+		
+		\vspace{0.5em}
+		
+		For example, we can formulate the problem as
+		\[
+		\begin{aligned}
+			\min_{x(t),u(t),T}\quad
+			&
+			\Phi\bigl(x(T)\bigr)
+			+
+			\int_0^T L\bigl(x(t),u(t)\bigr)\,dt
+			\\
+			\text{s.t.}\quad
+			&
+			\dot{x}(t)=f\bigl(x(t),u(t)\bigr),
+			\\
+			&
+			x(0)=x_A,
+			\qquad
+			x(T)=x_B.
+		\end{aligned}
+		\]
+		
+		\begin{itemize}
+			\item $\Phi(x(T))$ is the \textbf{terminal cost}, which
+			penalizes the final state.
+			
+			\item $L(x(t),u(t))$ is the \textbf{running cost}, which
+			penalizes the state and control along the trajectory.
+		\end{itemize}
+		
+		The particular choice of $\Phi$ and $L$ depends on what
+		we want the trajectory to achieve.
+	\end{flushleft}
+\end{frame}
+
+\begin{frame}{Direct Shooting}
+	\begin{flushleft}
+		Observe that, for a given control input $u(t)$ and
+		initial condition $x(0)=x_0$, the resulting trajectory is completely determined by
+		the system dynamics
+		\[
+		\dot{x}=f(x,u).
+		\]
+		
+		\vspace{0.5em}
+		
+		Therefore, we do not have to choose both $u(t)$ and $x(t)$.
+		
+		Instead, we can:
+		\begin{itemize}
+			\item choose $u(t)$;
+			\item simulate the system forward to obtain $x(t)$.
+		\end{itemize}
+		
+		\vspace{0.5em}
+		
+		This approach to trajectory optimization is called
+		\textbf{direct shooting}.
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Parameterizing the Control Input}
+	\begin{flushleft}
+		There are multiple ways to parameterize $u(t)$ for
+		direct shooting.
+		
+		\begin{itemize}
+			\item Piecewise constant:
+			\[
+			u(t)=u_i,
+			\qquad
+			t\in[t_i,t_{i+1}).
+			\]
+			
+			\item Higher-order polynomials on each time interval.
+			
+			\item Splines.
+			
+			\item A single time-dependent function, e.g.:
+			\[
+			u(t)=c_0+c_1t+c_2t^2+c_3t^3.
+			\]
+		\end{itemize}
+		
+		\vspace{0.5em}
+		
+		The key idea is to parameterize the control input using
+		a finite number of parameters $c$:
+		\[
+		u(t)=u(c,t).
+		\]
+		
+		The parameters $c$ then become the
+		\textbf{decision variables} of the optimization problem.
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Solving Direct Shooting}
+	\begin{flushleft}
+		After parameterizing the control input as
+		\[
+		u(t)=u(c,t),
+		\]
+		the trajectory optimization problem becomes an optimization
+		problem over the finite-dimensional vector $c$.
+		
+		\vspace{0.5em}
+		
+		An illuminating (although incomplete) picture of the
+		optimization process is:
+		
+		\begin{enumerate}
+			\item Given the current estimate of $c$, construct
+			$u(c,t)$.
+			
+			\item Solve $\dot{x}=f(x,u(c,t))$ forward in time.
+			
+			\item Evaluate the cost and its gradient $J(c),
+			\quad
+			\nabla_c J(c)$.
+			
+			\item Update $c$ in a direction that decreases the cost.
+			
+			\item Repeat until convergence.
+		\end{enumerate}
+		
+		\vspace{0.5em}
+		
+		This produces a trajectory $x(t)$ and control input $u(t)$
+		that approximately solve the trajectory optimization problem.
+	\end{flushleft}
+\end{frame}
+
+\begin{frame}{Literature}
+	
+	\begin{itemize}
+		
+		
+		\item Russ Tedrake -- MIT:
+		\bref{https://underactuated.mit.edu/trajopt.html}
+		{Underactuated Robotics: Trajectory Optimization, ch. 10.}
+		
+	\end{itemize}
+	
+\end{frame}
+
+
+
+\myqrframe
+
+
+
+
+\end{document}

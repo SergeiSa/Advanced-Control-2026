@@ -41,6 +41,12 @@ jobs:
           root_file: main.tex
           working_directory: SlidesRU/SoSLyapunov/
 
+      - name: Compile LaTeX document TrajectoryPlanning
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: SlidesRU/TrajectoryPlanning/
+
 
 
 
@@ -69,6 +75,12 @@ jobs:
           name: SoSLyapunov.pdf
           path: SlidesRU/SoSLyapunov/main.pdf
 
+      - name: Save TrajectoryPlanning artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TrajectoryPlanning.pdf
+          path: SlidesRU/TrajectoryPlanning/main.pdf
+
 
 
       - name: Update compiled PDFs in git repository
@@ -78,6 +90,7 @@ jobs:
           mv SlidesRU/StabilityCertificates/main.pdf SlidesRU/StabilityCertificates.pdf
           mv SlidesRU/SoS/main.pdf SlidesRU/SoS.pdf
           mv SlidesRU/SoSLyapunov/main.pdf SlidesRU/SoSLyapunov.pdf
+          mv SlidesRU/TrajectoryPlanning/main.pdf SlidesRU/TrajectoryPlanning.pdf
 
 
 
@@ -87,6 +100,7 @@ jobs:
           git add SlidesRU/StabilityCertificates.pdf
           git add SlidesRU/SoS.pdf
           git add SlidesRU/SoSLyapunov.pdf
+          git add SlidesRU/TrajectoryPlanning.pdf
 
 
 

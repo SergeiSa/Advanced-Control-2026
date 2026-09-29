@@ -1,0 +1,63 @@
+
+\begin{center}
+\begin{tikzpicture}[
+	scale=0.85,
+	>=Stealth,
+	base/.style={thick, line cap=round},
+	stable/.style={draw=black, line width=1.1pt},
+	intermediate/.style={draw=black!45, line width=0.9pt, dashed},
+	pivot/.style={fill=white, draw=black, thick},
+	bob/.style={circle, fill=black, inner sep=2.2pt},
+	bob gray/.style={circle, fill=black!45, inner sep=2pt},
+	arc arrow/.style={->, draw=black!70, thick, >=Stealth}
+	]
+	
+	\def\L{2.2} % Length of pendulum arm
+	
+	% --- LEFT SIDE: LOWER EQUILIBRIUM ---
+	\coordinate (O1) at (0, 0);
+	
+	% Base Mount
+	\draw[base] (-0.8,0) -- (0.8,0);
+	\fill[pattern=north east lines, pattern color=black!40] (-0.8,-0.15) rectangle (0.8,0);
+	
+	% Ground / Reference dashed line
+	\draw[gray!40, dash pattern=on 2pt off 2pt] (O1) -- ++(0, -\L - 0.4);
+	
+	% 4 States
+	\draw[stable] (O1) -- ++(270:\L) node[bob] {};
+	\draw[stable] (O1) -- ++(255:\L) node[bob] {};
+	\draw[intermediate] (O1) -- ++(225:\L) node[bob gray] {};
+	\draw[intermediate] (O1) -- ++(205:\L) node[bob gray] {};
+	
+	% Pivot Joint
+	\draw[pivot] (O1) circle (3pt);
+	
+	% Arc Arrow
+	\draw[arc arrow] (265:1.4) arc (265:210:1.4);
+	
+	
+	% --- RIGHT SIDE: UPPER EQUILIBRIUM (Shifted down to align top-to-top) ---
+	% Offset y by -\L so the top of the 180-deg pendulum reaches y = 0
+	\coordinate (O2) at (4.5, -\L);
+	
+	% Base Mount
+	\draw[base] (O2) ++(-0.8,0) -- ++(1.6,0);
+	\fill[pattern=north east lines, pattern color=black!40] (O2) ++(-0.8,-0.15) rectangle ++(1.6,0.15);
+	
+	% Vertical Reference line
+	\draw[gray!40, dash pattern=on 2pt off 2pt] (O2) -- ++(0, \L + 0.4);
+	
+	% States
+	\draw[intermediate] (O2) -- ++(135:\L) node[bob gray] {};
+	\draw[stable] (O2) -- ++(170:\L) node[bob] {};
+	\draw[stable] (O2) -- ++(90:\L) node[bob] {};
+	
+	% Pivot Joint
+	\draw[pivot] (O2) circle (3pt);
+	
+	% Arc Arrow
+	\draw[arc arrow] ($(O2)+(138:1.5)$) arc (138:95:1.5);
+	
+\end{tikzpicture}
+\end{center}
