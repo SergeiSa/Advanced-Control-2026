@@ -4,12 +4,14 @@
 * Lecture 2 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/StabilityCertificates.pdf
 * Lecture 3 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/SoS.pdf
 * Lecture 4 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/SoSLyapunov.pdf
+* Lecture 5 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/TrajectoryPlanning.pdf
 
 # Slides (EN):
 * Lecture 1 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Control%20Theory%20Recap
 * Lecture 2 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Stability%20Certificates
 * Lecture 3 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/SoS
 * Lecture 4 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/SoS%20Lyapunov
+* Lecture 5 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Trajectory%20Planning
 
 # Reference material:
 
@@ -31,6 +33,10 @@
     - **Russ Tedrake** -- MIT: [Underactuated Robotics: Lyapunov Analysis, ch. 9.2.2, 9.2.6](https://underactuated.csail.mit.edu/lyapunov.html)
     - **MIT OpenCourseWare** -- Algebraic Techniques and Semidefinite Optimization: [Lecture 10: Sums of Squares and Semidefinite Programming.](https://ocw.mit.edu/courses/6-972-algebraic-techniques-and-semidefinite-optimization-spring-2006/resources/lecture_10/)
     - **Antonis Papachristodoulou and Stephen Prajna** -- [A Tutorial on Sum of Squares Techniques for Systems Analysis.](https://users.ox.ac.uk/~engs0587/PapPACC05.pdf)
+
+* Trajectory Planning
+- **Russ Tedrake** -- MIT: [Underactuated Robotics: Trajectory Optimization, ch. 10.](https://mit.edu)
+
 
 # For contributors:
 
