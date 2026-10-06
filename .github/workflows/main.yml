@@ -47,6 +47,12 @@ jobs:
           root_file: main.tex
           working_directory: SlidesRU/TrajectoryPlanning/
 
+      - name: Compile LaTeX document ShootingCollocation
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: SlidesRU/ShootingCollocation/
+
 
 
 
@@ -81,6 +87,12 @@ jobs:
           name: TrajectoryPlanning.pdf
           path: SlidesRU/TrajectoryPlanning/main.pdf
 
+      - name: Save ShootingCollocation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShootingCollocation.pdf
+          path: SlidesRU/ShootingCollocation/main.pdf
+
 
 
       - name: Update compiled PDFs in git repository
@@ -91,6 +103,7 @@ jobs:
           mv SlidesRU/SoS/main.pdf SlidesRU/SoS.pdf
           mv SlidesRU/SoSLyapunov/main.pdf SlidesRU/SoSLyapunov.pdf
           mv SlidesRU/TrajectoryPlanning/main.pdf SlidesRU/TrajectoryPlanning.pdf
+          mv SlidesRU/ShootingCollocation/main.pdf SlidesRU/ShootingCollocation.pdf
 
 
 
@@ -101,6 +114,7 @@ jobs:
           git add SlidesRU/SoS.pdf
           git add SlidesRU/SoSLyapunov.pdf
           git add SlidesRU/TrajectoryPlanning.pdf
+          git add SlidesRU/ShootingCollocation.pdf
 
 
 
