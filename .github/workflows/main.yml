@@ -53,6 +53,12 @@ jobs:
           root_file: main.tex
           working_directory: SlidesRU/ShootingCollocation/
 
+      - name: Compile LaTeX document AdjointMethod
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: SlidesRU/AdjointMethod/
+
 
 
 
@@ -93,6 +99,12 @@ jobs:
           name: ShootingCollocation.pdf
           path: SlidesRU/ShootingCollocation/main.pdf
 
+      - name: Save AdjointMethod artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AdjointMethod.pdf
+          path: SlidesRU/AdjointMethod/main.pdf
+
 
 
       - name: Update compiled PDFs in git repository
@@ -104,6 +116,7 @@ jobs:
           mv SlidesRU/SoSLyapunov/main.pdf SlidesRU/SoSLyapunov.pdf
           mv SlidesRU/TrajectoryPlanning/main.pdf SlidesRU/TrajectoryPlanning.pdf
           mv SlidesRU/ShootingCollocation/main.pdf SlidesRU/ShootingCollocation.pdf
+          mv SlidesRU/AdjointMethod/main.pdf SlidesRU/AdjointMethod.pdf
 
 
 
@@ -115,6 +128,7 @@ jobs:
           git add SlidesRU/SoSLyapunov.pdf
           git add SlidesRU/TrajectoryPlanning.pdf
           git add SlidesRU/ShootingCollocation.pdf
+          git add SlidesRU/AdjointMethod.pdf
 
 
 

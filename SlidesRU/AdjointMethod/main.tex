@@ -1,0 +1,589 @@
+\documentclass{beamer}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\input{settings.tex}
+\usetikzlibrary{shapes.geometric, decorations.markings, positioning, patterns, calc, arrows.meta}
+
+\newcommand{\myqrframe}{
+	\begin{frame}
+		\begin{center}
+			\centerline{Слайды доступны на Github:}
+			\bigskip
+			\centerline{\mygit}
+			\bigskip
+			\myqr
+		\end{center}
+	\end{frame}
+}
+
+
+\subtitle{Современные методы управления роботами}
+\author{Сергей Савин}
+\date{2026}
+
+\title{Метод сопряжённых переменных, распространение чувствительностей}
+
+
+
+
+\begin{document}
+	\maketitle
+	
+	
+	\begin{frame}{Содержание}
+		\textbf{Метод сопряжённых переменных}
+		\begin{itemize}
+			\item Вывод через лагранжиан и гамильтониан
+			\item Уравнения для костояния и итоговый градиент
+			\item Сравнение с принципом Понтрягина
+			\item Связь с обратным режимом AD
+		\end{itemize}
+		
+		\textbf{Метод распространения чувствительностей}
+		\begin{itemize}
+			\item Вывод ОДУ для чувствительностей
+			\item Вычисление градиента стоимости
+			\item Связь с прямым режимом AD
+		\end{itemize}
+	\end{frame}
+	
+	
+	
+	%------------------------------------------------
+	\begin{frame}{Прямое пристреливание: постановка задачи}
+		\begin{flushleft}
+			Планирование траектории методом прямого пристреливания можно представить как
+			следующую задачу оптимизации:
+			
+			\[
+			\boxed{
+				\begin{aligned}
+					\min_{c}\quad
+					J(c)&=\Phi(x(t_f))+
+					\int_0^{t_f}\ell(x,u,t)\,dt\\
+					\text{s.t.}\quad
+					\dot{x}&=f(x,u,t),\\
+					u&=u(c,t),\\
+					x(0)&=x_0.
+				\end{aligned}
+			}
+			\]
+			
+			\bigskip
+			
+			Здесь $c$ параметризует управляющее воздействие, а
+			$x(t)$ определяется интегрированием динамики. $\Phi$ --- терминальная стоимость, $\ell$ --- интегральная стоимость.
+		\end{flushleft}
+	\end{frame}
+	
+	%------------------------------------------------
+	\begin{frame}{Градиенты}
+		\begin{flushleft}
+			Чтобы найти параметры $c$, минимизирующие $J(c)$,
+			нам нужно вычислить градиент $\frac{dJ}{dc}$.
+			
+			\bigskip
+			
+			Вычислить его явно сложно, потому что:
+			\begin{itemize}
+				\item Состояние $x(t)$ неявно зависит от $c$
+				через динамику системы.
+				\item Вычисление $dx(t)/dc$ требует дифференцирования
+				решения ОДУ по каждому параметру.
+				\item Число уравнений для чувствительностей растёт
+				с числом параметров в $c$.
+			\end{itemize}
+			
+			\bigskip
+			
+			Мы выведем метод, который позволяет избежать явного
+			вычисления $dx(t)/dc$.
+		\end{flushleft}
+	\end{frame}
+	
+	%------------------------------------------------
+	\begin{frame}{Градиенты через лагранжиан}
+		\begin{flushleft}
+			Введём лагранжиан, чтобы учесть ограничение-равенство,
+			описывающее динамику системы:
+			
+			\begin{align}
+				\boxed{
+					\begin{aligned}
+						\mathcal{L}(c,\lambda)
+						={}&\Phi(x(t_f))\\
+						&+\int_0^{t_f}
+						\left[
+						\ell(x,u,t)+
+						\lambda^\top(f(x,u,t)-\dot{x})
+						\right]dt.
+					\end{aligned}
+				}
+			\end{align}
+			
+			\medskip
+			
+			Здесь $\lambda(t)$ --- зависящий от времени множитель Лагранжа,
+			также называемый \textbf{костоянием}.
+			
+			\bigskip
+			
+			На множестве $\dot{x}=f(x,u,t)$, которое включает все
+			допустимые траектории,
+			\[
+			\boxed{\mathcal{L}(c,\lambda)=J(c).}
+			\]
+		\end{flushleft}
+	\end{frame}
+	
+	%------------------------------------------------
+	\begin{frame}{Упрощение лагранжиана}
+		\begin{flushleft}
+			Ключевой шаг --- исключить $\dot{x}$ с помощью интегрирования
+			по частям.
+			
+			\begin{theorem}[Интегрирование по частям]
+				\[
+				\int_a^b u^\top\dot{v}\,dt
+				=
+				\left[u^\top v\right]_a^b
+				-\int_a^b \dot{u}^\top v\,dt.
+				\]
+			\end{theorem}
+			
+			Применение этой формулы даёт
+			\[
+			-\int_0^{t_f}\lambda^\top\dot{x}\,dt
+			=
+			-\lambda(t_f)^\top x(t_f)
+			+\lambda(0)^\top x_0
+			+\int_0^{t_f}\dot{\lambda}^\top x\,dt.
+			\]
+			
+			Таким образом, лагранжиан принимает вид
+			\[
+			\boxed{
+				\begin{aligned}
+					\mathcal{L}
+					={}&\Phi(x(t_f))-\lambda(t_f)^\top x(t_f)+\lambda(0)^\top x_0\\
+					&+\int_0^{t_f}
+					\left[\ell+\lambda^\top f+
+					\dot{\lambda}^\top x\right]dt.
+				\end{aligned}
+			}
+			\]
+		\end{flushleft}
+	\end{frame}
+	
+	%------------------------------------------------
+	\begin{frame}{Градиент по параметрам}
+		\begin{flushleft}
+			Продифференцируем $\mathcal{L}$ по $c$,
+			считая $\lambda(t)$ фиксированным:
+			
+			\[
+			\begin{aligned}
+				\frac{dJ}{dc}
+				={}&
+				\left(\frac{d\Phi}{dx}
+				-\lambda(t_f)^\top\right)
+				\frac{dx(t_f)}{dc}\\
+				&+\lambda(0)^\top\frac{dx_0}{dc}\\
+				&+\int_0^{t_f}
+				\left(
+				\frac{d\ell}{dx}
+				+\lambda^\top\frac{df}{dx}
+				+\dot{\lambda}^\top
+				\right)\frac{dx}{dc}\,dt\\
+				&+\int_0^{t_f}
+				\left(
+				\frac{d\ell}{du}
+				+\lambda^\top\frac{df}{du}
+				\right)\frac{du}{dc}\,dt.
+			\end{aligned}
+			\]
+			
+			\bigskip
+			
+			Поскольку $x(0)=x_0$ не зависит от $c$,
+			\[
+			\frac{dx_0}{dc}=0.
+			\]
+		\end{flushleft}
+	\end{frame}
+	
+	%------------------------------------------------
+	\begin{frame}{Упрощение через гамильтониан}
+		\begin{flushleft}
+			Определим гамильтониан:
+			\[
+			\boxed{
+				H(x,u,\lambda,t)=\ell(x,u,t)+\lambda^\top f(x,u,t).
+			}
+			\]
+			
+			Его производные равны
+			\[
+			\begin{aligned}
+				\frac{dH}{dx}
+				&=\frac{d\ell}{dx}+\lambda^\top\frac{df}{dx},\\
+				\frac{dH}{du}
+				&=\frac{d\ell}{du}+\lambda^\top\frac{df}{du}.
+			\end{aligned}
+			\]
+			
+			\bigskip
+			
+			Теперь градиент можно записать как
+			\[
+			\boxed{
+				\begin{aligned}
+					\frac{dJ}{dc}
+					={}&
+					\left(\frac{d\Phi}{dx}-\lambda(t_f)^\top\right)
+					\frac{dx(t_f)}{dc}\\
+					&+\int_0^{t_f}
+					\left(\frac{dH}{dx}+\dot{\lambda}^\top\right)
+					\frac{dx}{dc}\,dt\\
+					&+\int_0^{t_f}\frac{dH}{du}\frac{du}{dc}\,dt.
+				\end{aligned}
+			}
+			\]
+		\end{flushleft}
+	\end{frame}
+	
+	%------------------------------------------------
+	\begin{frame}{Исключение градиентов состояния}
+		\begin{flushleft}
+			Выберем $\lambda(t)$ так, чтобы сократить все члены, содержащие
+			$dx/dc$.
+			
+			\bigskip
+			
+			Сокращение терминального члена даёт
+			\[
+			\boxed{
+				\lambda(t_f)=\left(\frac{d\Phi}{dx}\right)^\top.
+			}
+			\]
+			
+			\bigskip
+			
+			Сокращение интегрального члена даёт
+			\[
+			\boxed{
+				\dot{\lambda}
+				=-\left(\frac{dH}{dx}\right)^\top.
+			}
+			\]
+			
+			\bigskip
+			
+			Это ОДУ, решаемое \textbf{в обратном времени},
+			с $\lambda(t_f)$ в качестве терминального условия.
+		\end{flushleft}
+	\end{frame}
+	
+	%------------------------------------------------
+	\begin{frame}{Градиенты: итоговая форма}
+		\begin{flushleft}
+			При таком выборе костояния все члены, содержащие
+			$dx/dc$, обращаются в нуль.
+			
+			\bigskip
+			
+			Получаем итоговое выражение для градиента:
+			\[
+			\boxed{
+				\frac{dJ}{dc}
+				=
+				\int_0^{t_f}
+				\frac{dH}{du}\frac{du}{dc}\,dt.
+			}
+			\]
+			
+			\bigskip
+			
+			Эквивалентно,
+			\[
+			\boxed{
+				\frac{dJ}{dc}
+				=
+				\int_0^{t_f}
+				\left(
+				\frac{d\ell}{du}
+				+\lambda^\top\frac{df}{du}
+				\right)
+				\frac{du}{dc}\,dt.
+			}
+			\]
+			
+			Чувствительности состояния $dx/dc$ больше не нужны.
+		\end{flushleft}
+	\end{frame}
+	
+	%------------------------------------------------
+	\begin{frame}{Описание метода сопряжённых переменных}
+		\begin{flushleft}
+			Метод сопряжённых переменных вычисляет градиент за четыре шага:
+			
+			\begin{enumerate}
+				\item \textbf{Прямой ход:}
+				Интегрируем $\dot{x}=f(x,u,t)$ и сохраняем траекторию.
+				
+				\item \textbf{Обратный ход:}
+				Интегрируем $\dot{\lambda}=-(dH/dx)^\top$ в обратном времени,
+				начиная с $\lambda(t_f)=(d\Phi/dx)^\top$.
+				
+				\item \textbf{Вычисление градиента:}
+				Вычисляем $\displaystyle
+				\frac{dJ}{dc}=\int_0^{t_f}
+				\frac{dH}{du}\frac{du}{dc}\,dt$.
+				
+				\item \textbf{Обновление решателя:}
+				Обновляем $c$ с помощью градиентного оптимизатора
+				и повторяем до сходимости.
+			\end{enumerate}
+			
+			\bigskip
+			
+			Стоимость обратного прохода не растёт с
+			числом параметров управления.
+		\end{flushleft}
+	\end{frame}
+	
+	%------------------------------------------------
+	\begin{frame}{Сравнение с принципом Понтрягина}
+		\begin{flushleft}
+			
+			\textbf{Принцип минимума Понтрягина} даёт необходимые
+			условия оптимальности траектории управления. Для оптимального решения он вводит гамильтониан
+			и костояние, удовлетворяющие
+			\[
+			\dot{\lambda}=-\left(\frac{dH}{dx}\right)^\top,
+			\qquad
+			\lambda(t_f)=\left(\frac{d\Phi}{dx}\right)^\top.
+			\]
+			
+			Для безусловного оптимального управления он также требует
+			\[
+			\frac{dH}{du}=0
+			\]
+			вдоль оптимальной траектории.
+			
+			\textbf{Ключевое различие:}
+			\begin{itemize}
+				\item Метод сопряжённых переменных вычисляет градиент
+				$dJ/dc$ для выбранного параметризованного управления.
+				\item Принцип Понтрягина даёт необходимые
+				условия оптимальности для самого оптимального управления.
+			\end{itemize}
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	
+	
+	%------------------------------------------------
+	\begin{frame}{Обратный режим автоматического дифференцирования vs.\ метод сопряжённых переменных}
+		\begin{flushleft}
+			
+			\textbf{Дискретный случай (пристреливание с транскрипцией):} Обратный режим AD на развёрнутом цикле интегрирования
+			\emph{и есть} дискретный метод сопряжённых переменных.
+			
+			\bigskip
+			
+			\textbf{Ограничения реализации AD:} Обратный режим AD строит вычислительный граф (часто большой), для хранения промежуточных значений может потребоваться значительный объём памяти.
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	
+	
+	
+	%------------------------------------------------
+	\begin{frame}{Прямое пристреливание: чувствительность}
+		\begin{flushleft}
+			Траектория состояния зависит от параметров управления
+			через динамику и вход $u(c,t)$.
+			
+			Для каждого параметра $c_j$ определим чувствительность состояния
+			\[
+			S_j(t) := \frac{dx(t)}{dc_j}.
+			\]
+			
+			\bigskip
+			
+			\textbf{Идея:} Вывести ОДУ, описывающее эволюцию
+			$S_j(t)$. Как только чувствительности известны, можно вычислить
+			градиент $\frac{dJ}{dc}$ по правилу цепочки.
+		\end{flushleft}
+	\end{frame}
+	
+	%------------------------------------------------
+	\begin{frame}{Прямое пристреливание: дифференцирование динамики}
+		\begin{flushleft}
+			Начнём с динамики
+			\[
+			\dot{x} = f(x,u,t),
+			\qquad u=u(c,t).
+			\]
+			
+			Продифференцируем обе стороны по $c_j$:
+			\[
+			\frac{d}{dc_j}\dot{x}
+			=
+			\frac{df}{dx}\frac{dx}{dc_j}
+			+
+			\frac{df}{du}\frac{du}{dc_j}.
+			\]
+			
+			Поскольку $c_j$ не зависит от времени, дифференцирование
+			по $c_j$ коммутирует с дифференцированием
+			по $t$:
+			\[
+			\frac{d}{dc_j}\dot{x}
+			=
+			\frac{d}{dt}\frac{dx}{dc_j}.
+			\]
+			
+			Определяя $S_j := \frac{dx}{dc_j},
+			\quad
+			U_j := \frac{du}{dc_j}$, 
+			получаем:
+			\[
+			\boxed{
+				\dot{S}_j
+				=
+				\frac{df}{dx}S_j
+				+
+				\frac{df}{du}U_j
+			}
+			\]
+		\end{flushleft}
+	\end{frame}
+	
+	%------------------------------------------------
+	\begin{frame}{Прямое пристреливание: ОДУ для чувствительностей}
+		\begin{flushleft}
+			Соберём чувствительности по всем $N$
+			параметрам управления в матрицы:
+			\[
+			S =
+			\begin{bmatrix}
+				S_1 & \cdots & S_N
+			\end{bmatrix}
+			=
+			\frac{dx}{dc},
+			\qquad
+			U_c = \frac{du}{dc}.
+			\]
+			
+			Объединение отдельных уравнений для чувствительностей даёт
+			\[
+			\boxed{
+				\dot{S}(t)
+				=
+				\frac{df}{dx}S(t)
+				+
+				\frac{df}{du}U_c(t)
+			}
+			\]
+			
+			\bigskip
+			
+			Поскольку $x(0)=x_0$ не зависит от $c$,
+			\[
+			\boxed{S(0)=0.}
+			\]
+			
+			\textbf{Численная процедура:} Интегрируем ОДУ состояния и
+			чувствительностей совместно в прямом времени. Вычисляем $\frac{df}{dx}$
+			и $\frac{df}{du}$ вдоль траекторий состояния и входа.
+		\end{flushleft}
+	\end{frame}
+	
+	%------------------------------------------------
+	\begin{frame}{Прямое пристреливание: градиент стоимости}
+		\begin{flushleft}
+			Целевая функция имеет вид
+			\[
+			J(c)=\Phi(x(t_f))
+			+\int_0^{t_f}\ell(x,u,t)\,dt.
+			\]
+			
+			Применим правило цепочки, используя
+			$S(t)=\frac{dx}{dc}$ и $U_c(t)=\frac{du}{dc}$:
+			\[
+			\boxed{
+				\begin{aligned}
+					\frac{dJ}{dc}
+					={}&
+					\frac{d\Phi}{dx}S(t_f)\\
+					&+
+					\int_0^{t_f}
+					\left(
+					\frac{d\ell}{dx}S(t)
+					+
+					\frac{d\ell}{du}U_c(t)
+					\right)dt.
+				\end{aligned}
+			}
+			\]
+			
+			\bigskip
+			
+			Таким образом, ОДУ состояния и чувствительностей дают
+			траекторию и её производные, из которых мы вычисляем
+			$\frac{dJ}{dc}$.
+		\end{flushleft}
+	\end{frame}
+	
+	
+	
+	%------------------------------------------------
+	\begin{frame}{Распространение чувствительностей vs прямой режим AD}
+		\begin{flushleft}
+			
+			Распространение чувствительностей в дискретном времени --- это \emph{прямой режим автоматического дифференцирования}:
+			
+			\bigskip
+			
+			Для дискретной системы $x_{k+1}=F_k(x_k,c)$ и распространение чувствительностей, и прямой режим AD представляются как:
+			
+			\[ \boxed{ S_{k+1} = \frac{dF_k}{dx_k}S_k + \frac{dF_k}{dc}, \qquad S_0=0. } \]
+			
+			
+		\end{flushleft}
+	\end{frame}
+	
+	
+	
+	
+	
+	\begin{frame}{Литература}
+		
+		\begin{itemize}
+			
+			
+			\item Russ Tedrake -- MIT:
+			\bref{https://underactuated.mit.edu/trajopt.html}
+			{Underactuated Robotics: Trajectory Optimization, ch. 10.}
+			
+		\end{itemize}
+		
+	\end{frame}
+	
+	
+	
+
+\myqrframe
+
+
+
+
+\end{document}

@@ -1,0 +1,570 @@
+\documentclass{beamer}
+
+\input{settings.tex}
+\usetikzlibrary{shapes.geometric, decorations.markings, positioning, patterns, calc, arrows.meta}
+
+
+\title{Adjoint Method, Sensitivity Propagation}
+\subtitle{Advanced Control}
+\author{by Sergei Savin}
+\centering
+\date{\mydate}
+
+
+
+\begin{document}
+\maketitle
+
+
+\begin{frame}{Content}
+\textbf{Adjoint Method}
+\begin{itemize}
+	\item Lagrangian and Hamiltonian derivation
+	\item Costate equations and final gradient
+	\item Comparison with Pontryagin's Principle
+	\item Connection to reverse-mode AD
+\end{itemize}
+
+\textbf{Sensitivity Propagation Method}
+\begin{itemize}
+	\item Sensitivity ODE derivation
+	\item Cost gradient computation
+	\item Connection to forward-mode AD
+\end{itemize}
+\end{frame}
+
+
+
+%------------------------------------------------
+\begin{frame}{Direct Shooting: Problem Statement}
+	\begin{flushleft}
+		Direct shooting trajectory planning can be represented as
+		the following optimization problem:
+		
+		\[
+		\boxed{
+			\begin{aligned}
+				\min_{c}\quad
+				J(c)&=\Phi(x(t_f))+
+				\int_0^{t_f}\ell(x,u,t)\,dt\\
+				\text{s.t.}\quad
+				\dot{x}&=f(x,u,t),\\
+				u&=u(c,t),\\
+				x(0)&=x_0.
+			\end{aligned}
+		}
+		\]
+		
+		\bigskip
+		
+		Here, $c$ parametrizes the control input, while
+		$x(t)$ is determined by integrating the dynamics. $\Phi$ is the terminal cost and $\ell$ is the running cost.
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Gradients}
+	\begin{flushleft}
+		To find parameters $c$ that minimize $J(c)$,
+		we need to compute the gradient $\frac{dJ}{dc}$.
+		
+		\bigskip
+		
+		Computing it explicitly is difficult because:
+		\begin{itemize}
+			\item The state $x(t)$ depends implicitly on $c$
+			through the system dynamics.
+			\item Computing $dx(t)/dc$ requires differentiating
+			the ODE solution with respect to every parameter.
+			\item The number of sensitivity equations grows
+			with the number of parameters in $c$.
+		\end{itemize}
+		
+		\bigskip
+		
+		We will derive a method that avoids computing
+		$dx(t)/dc$ explicitly.
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Gradients Through a Lagrangian}
+	\begin{flushleft}
+		We introduce a Lagrangian to incorporate the equality
+		constraint describing the system dynamics:
+		
+		\begin{align}
+			\boxed{
+				\begin{aligned}
+					\mathcal{L}(c,\lambda)
+					={}&\Phi(x(t_f))\\
+					&+\int_0^{t_f}
+					\left[
+					\ell(x,u,t)+
+					\lambda^\top(f(x,u,t)-\dot{x})
+					\right]dt.
+				\end{aligned}
+			}
+		\end{align}
+		
+		Here, $\lambda(t)$ is a time-dependent Lagrange multiplier,
+		also called the \textbf{costate}.
+		
+		\bigskip
+		
+		On the set $\dot{x}=f(x,u,t)$, which includes every
+		admissible trajectory,
+		\[
+		\boxed{\mathcal{L}(c,\lambda)=J(c).}
+		\]
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Simplification of the Lagrangian}
+	\begin{flushleft}
+		A key step is to eliminate $\dot{x}$ using integration
+		by parts.
+		
+		\begin{theorem}[Integration by parts]
+			\[
+			\int_a^b u^\top\dot{v}\,dt
+			=
+			\left[u^\top v\right]_a^b
+			-\int_a^b \dot{u}^\top v\,dt.
+			\]
+		\end{theorem}
+		
+		Applying this formula gives
+		\[
+		-\int_0^{t_f}\lambda^\top\dot{x}\,dt
+		=
+		-\lambda(t_f)^\top x(t_f)
+		+\lambda(0)^\top x_0
+		+\int_0^{t_f}\dot{\lambda}^\top x\,dt.
+		\]
+		
+		Thus, the Lagrangian becomes
+		\[
+		\boxed{
+			\begin{aligned}
+				\mathcal{L}
+				={}&\Phi(x(t_f))-\lambda(t_f)^\top x(t_f)+\lambda(0)^\top x_0\\
+				&+\int_0^{t_f}
+				\left[\ell+\lambda^\top f+
+				\dot{\lambda}^\top x\right]dt.
+			\end{aligned}
+		}
+		\]
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Gradient with Respect to Parameters}
+	\begin{flushleft}
+		Differentiate $\mathcal{L}$ with respect to $c$,
+		treating $\lambda(t)$ as fixed:
+		
+		\[
+		\begin{aligned}
+			\frac{dJ}{dc}
+			={}&
+			\left(\frac{d\Phi}{dx}
+			-\lambda(t_f)^\top\right)
+			\frac{dx(t_f)}{dc}\\
+			&+\lambda(0)^\top\frac{dx_0}{dc}\\
+			&+\int_0^{t_f}
+			\left(
+			\frac{d\ell}{dx}
+			+\lambda^\top\frac{df}{dx}
+			+\dot{\lambda}^\top
+			\right)\frac{dx}{dc}\,dt\\
+			&+\int_0^{t_f}
+			\left(
+			\frac{d\ell}{du}
+			+\lambda^\top\frac{df}{du}
+			\right)\frac{du}{dc}\,dt.
+		\end{aligned}
+		\]
+		
+		\bigskip
+		
+		Since $x(0)=x_0$ is independent of $c$,
+		\[
+		\frac{dx_0}{dc}=0.
+		\]
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Simplification via the Hamiltonian}
+	\begin{flushleft}
+		Define the Hamiltonian:
+		\[
+		\boxed{
+			H(x,u,\lambda,t)=\ell(x,u,t)+\lambda^\top f(x,u,t).
+		}
+		\]
+		
+		Its derivatives are
+		\[
+		\begin{aligned}
+			\frac{dH}{dx}
+			&=\frac{d\ell}{dx}+\lambda^\top\frac{df}{dx},\\
+			\frac{dH}{du}
+			&=\frac{d\ell}{du}+\lambda^\top\frac{df}{du}.
+		\end{aligned}
+		\]
+		
+		\bigskip
+		
+		The gradient can now be written as
+		\[
+		\boxed{
+			\begin{aligned}
+				\frac{dJ}{dc}
+				={}&
+				\left(\frac{d\Phi}{dx}-\lambda(t_f)^\top\right)
+				\frac{dx(t_f)}{dc}\\
+				&+\int_0^{t_f}
+				\left(\frac{dH}{dx}+\dot{\lambda}^\top\right)
+				\frac{dx}{dc}\,dt\\
+				&+\int_0^{t_f}\frac{dH}{du}\frac{du}{dc}\,dt.
+			\end{aligned}
+		}
+		\]
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Eliminating State Gradients}
+	\begin{flushleft}
+		We choose $\lambda(t)$ to cancel all terms containing
+		$dx/dc$.
+		
+		\bigskip
+		
+		Canceling the terminal term gives
+		\[
+		\boxed{
+			\lambda(t_f)=\left(\frac{d\Phi}{dx}\right)^\top.
+		}
+		\]
+		
+		\bigskip
+		
+		Canceling the integral term gives
+		\[
+		\boxed{
+			\dot{\lambda}
+			=-\left(\frac{dH}{dx}\right)^\top.
+		}
+		\]
+		
+		\bigskip
+		
+		This is an ODE solved \textbf{backward in time},
+		using $\lambda(t_f)$ as its terminal condition.
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Gradients: Final Form}
+	\begin{flushleft}
+		With the costate chosen as above, all terms involving
+		$dx/dc$ vanish.
+		
+		\bigskip
+		
+		We obtain the final expression for the gradient:
+		\[
+		\boxed{
+			\frac{dJ}{dc}
+			=
+			\int_0^{t_f}
+			\frac{dH}{du}\frac{du}{dc}\,dt.
+		}
+		\]
+		
+		\bigskip
+		
+		Equivalently,
+		\[
+		\boxed{
+			\frac{dJ}{dc}
+			=
+			\int_0^{t_f}
+			\left(
+			\frac{d\ell}{du}
+			+\lambda^\top\frac{df}{du}
+			\right)
+			\frac{du}{dc}\,dt.
+		}
+		\]
+		
+		The state sensitivities $dx/dc$ are no longer needed.
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Description of the Adjoint Method}
+	\begin{flushleft}
+		The adjoint method computes the gradient in four steps:
+		
+		\begin{enumerate}
+			\item \textbf{Forward pass:}
+			Integrate $\dot{x}=f(x,u,t)$ and store the trajectory.
+			
+			\item \textbf{Backward pass:}
+			Integrate $\dot{\lambda}=-(dH/dx)^\top$ backward,
+			starting from $\lambda(t_f)=(d\Phi/dx)^\top$.
+			
+			\item \textbf{Gradient evaluation:}
+			Compute $\displaystyle
+			\frac{dJ}{dc}=\int_0^{t_f}
+			\frac{dH}{du}\frac{du}{dc}\,dt$.
+			
+			\item \textbf{Solver update:}
+			Update $c$ using a gradient-based optimizer
+			and repeat until convergence.
+		\end{enumerate}
+		
+		\bigskip
+		
+		The cost of the backward pass does not grow with
+		the number of control parameters.
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Comparison with Pontryagin's Principle}
+	\begin{flushleft}
+		
+		\textbf{Pontryagin's minimum principle} gives necessary
+		conditions for an optimal control trajectory. For an optimal solution, it introduces a Hamiltonian
+		and costate satisfying
+		\[
+		\dot{\lambda}=-\left(\frac{dH}{dx}\right)^\top,
+		\qquad
+		\lambda(t_f)=\left(\frac{d\Phi}{dx}\right)^\top.
+		\]
+		
+		For an unconstrained optimal control, it also requires
+		\[
+		\frac{dH}{du}=0
+		\]
+		along an optimal trajectory.
+		
+		\textbf{The key difference:}
+		\begin{itemize}
+			\item The adjoint method computes the gradient
+			$dJ/dc$ for a chosen parameterized control.
+			\item Pontryagin's principle provides necessary
+			optimality conditions for the optimal control itself.
+		\end{itemize}
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+
+
+%------------------------------------------------
+\begin{frame}{Reverse-Mode Automatic Differentiation vs.\ the Adjoint Method}
+	\begin{flushleft}
+		
+		\textbf{Discrete case (shooting transcription):} Reverse-mode AD on the unrolled integration loop
+		\emph{is} the discrete adjoint method.
+		
+		\bigskip
+		
+		\textbf{Limitations of the AD implementation:} Reverse-Mode AD builds a computational graph (often large) that could require substantial memory to store intermediate values.
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+
+
+
+%------------------------------------------------
+\begin{frame}{Direct Shooting: Sensitivity}
+	\begin{flushleft}
+		The state trajectory depends on the control parameters
+		through the dynamics and the input $u(c,t)$.
+		
+		For each parameter $c_j$, define the state sensitivity
+		\[
+		S_j(t) := \frac{dx(t)}{dc_j}.
+		\]
+		
+		\bigskip
+		
+		\textbf{Idea:} Derive an ODE governing the evolution of
+		$S_j(t)$. Once the sensitivities are known, we can compute
+		the gradient $\frac{dJ}{dc}$ using the chain rule.
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Direct Shooting: Differentiating the Dynamics}
+	\begin{flushleft}
+		Start with the dynamics
+		\[
+		\dot{x} = f(x,u,t),
+		\qquad u=u(c,t).
+		\]
+		
+		Differentiate both sides with respect to $c_j$:
+		\[
+		\frac{d}{dc_j}\dot{x}
+		=
+		\frac{df}{dx}\frac{dx}{dc_j}
+		+
+		\frac{df}{du}\frac{du}{dc_j}.
+		\]
+		
+		Since $c_j$ is independent of time, differentiation
+		with respect to $c_j$ commutes with differentiation
+		with respect to $t$:
+		\[
+		\frac{d}{dc_j}\dot{x}
+		=
+		\frac{d}{dt}\frac{dx}{dc_j}.
+		\]
+		
+		Defining $S_j := \frac{dx}{dc_j},
+		\quad
+		U_j := \frac{du}{dc_j}$, 
+		we obtain:
+		\[
+		\boxed{
+			\dot{S}_j
+			=
+			\frac{df}{dx}S_j
+			+
+			\frac{df}{du}U_j
+		}
+		\]
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Direct Shooting: Sensitivity ODE}
+	\begin{flushleft}
+		Collect the sensitivities with respect to all $N$
+		control parameters into matrices:
+		\[
+		S =
+		\begin{bmatrix}
+			S_1 & \cdots & S_N
+		\end{bmatrix}
+		=
+		\frac{dx}{dc},
+		\qquad
+		U_c = \frac{du}{dc}.
+		\]
+		
+		Concatenating the individual sensitivity equations gives
+		\[
+		\boxed{
+			\dot{S}(t)
+			=
+			\frac{df}{dx}S(t)
+			+
+			\frac{df}{du}U_c(t)
+		}
+		\]
+		
+		\bigskip
+		
+		Because $x(0)=x_0$ is independent of $c$,
+		\[
+		\boxed{S(0)=0.}
+		\]
+		
+		\textbf{Numerical procedure:} Integrate the state and
+		sensitivity ODEs forward together. Evaluate $\frac{df}{dx}$
+		and $\frac{df}{du}$ along the state and input trajectories.
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Direct Shooting: Cost Gradient}
+	\begin{flushleft}
+		The objective is
+		\[
+		J(c)=\Phi(x(t_f))
+		+\int_0^{t_f}\ell(x,u,t)\,dt.
+		\]
+		
+		Apply the chain rule, using
+		$S(t)=\frac{dx}{dc}$ and $U_c(t)=\frac{du}{dc}$:
+		\[
+		\boxed{
+			\begin{aligned}
+				\frac{dJ}{dc}
+				={}&
+				\frac{d\Phi}{dx}S(t_f)\\
+				&+
+				\int_0^{t_f}
+				\left(
+				\frac{d\ell}{dx}S(t)
+				+
+				\frac{d\ell}{du}U_c(t)
+				\right)dt.
+			\end{aligned}
+		}
+		\]
+		
+		\bigskip
+		
+		Thus, the state and sensitivity ODEs provide the
+		trajectory and its derivatives, from which we compute
+		$\frac{dJ}{dc}$.
+	\end{flushleft}
+\end{frame}
+
+
+
+%------------------------------------------------
+\begin{frame}{Sensitivity Propagation vs Forward-Mode AD}
+	\begin{flushleft}
+		
+		Discrete-time sensitivity propagation is the \emph{forward-mode automatic differentiation}:
+
+		\bigskip
+
+		For a discrete system $x_{k+1}=F_k(x_k,c)$, both Sensitivity Propagation and Forward-Mode AD are represented as:
+		
+		\[ \boxed{ S_{k+1} = \frac{dF_k}{dx_k}S_k + \frac{dF_k}{dc}, \qquad S_0=0. } \]
+		
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+
+\begin{frame}{Literature}
+	
+	\begin{itemize}
+		
+		
+		\item Russ Tedrake -- MIT:
+		\bref{https://underactuated.mit.edu/trajopt.html}
+		{Underactuated Robotics: Trajectory Optimization, ch. 10.}
+		
+	\end{itemize}
+	
+\end{frame}
+
+
+
+\myqrframe
+
+
+
+
+\end{document}
