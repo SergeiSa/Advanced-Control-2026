@@ -1,0 +1,459 @@
+\documentclass{beamer}
+
+\input{settings.tex}
+\usetikzlibrary{shapes.geometric, decorations.markings, positioning, patterns, calc, arrows.meta}
+
+
+\subtitle{Advanced Control}
+\author{by Sergei Savin}
+\centering
+\date{\mydate}
+
+
+
+\title{Adjoint Method, Sensitivity Propagation}
+\begin{document}
+\maketitle
+
+
+\begin{frame}{Content}
+	\begin{itemize}
+		\item Path planning on graphs
+		\item Dijkstra's algorithm: initialization, exploring and updating nodes, selecting the next node, recovering the path
+		\item A$^\ast$ algorithm and admissible heuristics
+		\item Value iteration and the Bellman equation
+	\end{itemize}
+\end{frame}
+
+
+%------------------------------------------------
+\begin{frame}{Path Planning on Graphs}
+	\begin{flushleft}
+		
+		Many practical path planning problems can be
+		formalized using graphs:
+		
+		\begin{itemize}
+			\item We describe the environment as a set of
+			locations (nodes).
+			\item We know between which locations we can
+			move (edges).
+			\item We know the cost of moving from one
+			location to another (edge cost).
+		\end{itemize}
+		
+		Thus, path planning becomes a problem of finding
+		a sequence of edges connecting the starting node
+		to the goal node, such that the sum of the edge
+		costs is as small as possible.
+		
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Paths on a Graph}
+	\begin{flushleft}
+		
+		For any node $k$, let $\mathcal{N}(k)$ denote
+		the set of nodes that can be reached from $k$
+		by traversing one edge. These are called
+		\textbf{adjacent nodes}.
+		
+		\medskip
+		
+		A path can be represented as a sequence of nodes
+		connected by edges. Each intermediate node has
+		a predecessor and a successor.
+		
+		
+		\medskip
+		
+		
+		An optimal path has an important property:
+		
+		\begin{itemize}
+			\item Each intermediate node is reached from
+			its predecessor along an optimal path to that
+			node.
+			\item From each intermediate node, the remaining
+			path to the goal is also optimal.
+		\end{itemize}
+		
+		
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Dijkstra's Algorithm}
+	\begin{flushleft}
+		
+		\textbf{Dijkstra's algorithm} finds shortest paths
+		from a starting node to other nodes in a graph.
+		It can also be used to find a shortest path to a
+		specific goal node.
+		
+		
+		\medskip
+		The key idea is to maintain the best known
+		cost of reaching each discovered node from
+		the starting node.
+		
+		\medskip
+		
+		We maintain two sets:
+		
+		\begin{itemize}
+			\item \textbf{Open set:} nodes that have been
+			discovered but not yet fully explored.
+			\item \textbf{Closed set:} nodes whose shortest
+			path costs have been finalized.
+		\end{itemize}
+		
+		We assume that all edge costs are nonnegative.
+		
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Dijkstra's Algorithm: Initialization}
+	\begin{flushleft}
+		
+		Initially, only the starting node $s$ has been
+		discovered:
+		
+		\[
+		\text{Open}=\{s\},
+		\qquad
+		\text{Closed}=\emptyset.
+		\]
+		
+		For every discovered node $k$, we maintain a
+		tentative cost $g(k)$: the cost of the best path
+		to $k$ found so far. The initial cost is
+		\[
+		g(s)=0.
+		\]
+		
+		All other nodes are initially undiscovered, with
+		their costs treated as infinity:
+		\[
+		g(k)=+\infty,\qquad k\ne s.
+		\]
+		
+		We also store the predecessor of each discovered
+		node to reconstruct the path.
+		
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Dijkstra's Algorithm: Exploring a Node}
+	\begin{flushleft}
+		
+		Exploring a node $k$ involves the following steps:
+		
+		\begin{enumerate}
+			\item Check whether $k$ is the goal node.
+			\item Examine every adjacent node $m\in\mathcal{N}(k)$.
+			\item Move $k$ from the open set to the
+			closed set.
+		\end{enumerate}
+		
+		
+		\medskip
+		When examining an adjacent node $m$, we check
+		whether the path through $k$ improves its
+		best known cost. If $m$ has not been discovered, its tentative
+		cost is initialized as
+		\[
+		g(m)=g(k)+c(k,m),
+		\]
+		where $c(k,m)$ is the cost of the edge from
+		$k$ to $m$.
+		
+		We also record $k$ as the predecessor of $m$
+		and add $m$ to the open set.
+		
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Dijkstra's Algorithm: Updating a Node}
+	\begin{flushleft}
+		
+		Sometimes, we encounter a node $m$ that has
+		already been discovered.
+		
+		Let $g(m)$ be its current tentative cost. We
+		compare it with the cost of reaching $m$ through
+		the node $k$ currently being explored:
+		
+		\[
+		g_{\mathrm{new}}(m)=g(k)+c(k,m).
+		\]
+		
+		There are two possibilities:
+		
+		\begin{itemize}
+			\item If $g(m)\leq g_{\mathrm{new}}(m)$,
+			keep the current cost and predecessor.
+			\item If $g(m)>g_{\mathrm{new}}(m)$,
+			update the cost and set $k$ as the new
+			predecessor of $m$:
+			\[
+			g(m)\leftarrow g_{\mathrm{new}}(m).
+			\]
+		\end{itemize}
+		
+		This operation is called \textbf{relaxation}
+		of an edge.
+		
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Dijkstra's Algorithm: Selecting the Next Node}
+	\begin{flushleft}
+		
+		The key step is selecting the next node to explore.
+		
+		We select the node $k$ with the smallest tentative
+		cost among all nodes in the open set:
+		
+		\[
+		k=\arg\min_{m\in\mathrm{Open}} g(m).
+		\]
+		
+		We then explore $k$ and move it to the closed set.
+		
+		\begin{itemize}
+			\item If $k$ is the goal node, we terminate.
+			\item Otherwise, we continue selecting and
+			exploring nodes.
+		\end{itemize}
+		
+		Because all edge costs are nonnegative, the
+		cost of a selected node is its shortest-path cost.
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+%------------------------------------------------
+\begin{frame}{Dijkstra's Algorithm: Recovering the Path}
+	\begin{flushleft}
+		
+		Once the algorithm terminates, we can recover
+		the shortest path to the goal. Starting from the goal node, we repeatedly find
+		its predecessor and add it to the path.
+		
+		\medskip
+		
+		Equivalently, for the current node $m$, we can
+		select the predecessor $k$ satisfying
+		\[
+		k=\arg\min_{k:\,m\in\mathcal{N}(k)}
+		\bigl(g(k)+c(k,m)\bigr).
+		\]
+		
+		We continue until we reach the starting node $s$.
+		Then we reverse the sequence of nodes to obtain
+		the path from $s$ to the goal.
+		
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Dijkstra's Algorithm: One Goal or All Goals?}
+	\begin{flushleft}
+		
+		Dijkstra's algorithm uses the goal node only
+		to determine when to terminate.
+		
+		
+		\medskip
+		
+		If we let the algorithm run until the open set
+		becomes empty, it computes the shortest-path
+		costs from the starting node to every reachable
+		node in the graph.
+		
+		\begin{itemize}
+			\item We can then choose any reachable node
+			as the goal and recover its shortest path.
+			\item However, this may be unnecessary work
+			if we only need a path to one known goal.
+		\end{itemize}
+		
+		We can use knowledge of the goal to guide the
+		search and explore fewer nodes.
+		
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{A$^\ast$ Algorithm}
+	\begin{flushleft}
+		
+		The A$^\ast$ algorithm is similar to Dijkstra's
+		algorithm, but it uses information about the goal
+		to guide the selection of nodes for exploration.
+		
+		\medskip
+		While Dijkstra selects the node with the smallest
+		tentative cost $g(k)$, A$^\ast$ selects the node
+		with the smallest estimated total cost:
+		
+		\[
+		f(k)=g(k)+h(k).
+		\]
+		
+		Here:
+		\begin{itemize}
+			\item $g(k)$ is the cost of the best path
+			found so far from the start to node $k$.
+			\item $h(k)$ estimates the remaining cost
+			from node $k$ to the goal.
+		\end{itemize}
+		
+		An \textbf{admissible heuristic} never overestimates
+		the true minimum remaining cost.
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+%------------------------------------------------
+\begin{frame}{Value Iteration}
+	\begin{flushleft}
+		
+		Dijkstra's algorithm starts from the initial node
+		and propagates information about the cost of
+		reaching other nodes.
+		
+		
+		\medskip
+		
+		Alternatively, we can start from the goal and
+		propagate information about the cost of reaching
+		the goal from every other node.
+		
+		\bigskip
+		This quantity is called the \textbf{cost-to-go},
+		denoted by $V(k)$ for each node $k$. This is the key idea behind \textbf{value iteration}.
+		
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Value Iteration: Initialization}
+	\begin{flushleft}
+		
+		We initialize every node $k$ with a cost-to-go
+		estimate $V(k)$.
+		
+		\begin{itemize}
+			\item For the goal node $g$, the cost-to-go is
+			zero:
+			\[
+			V(g)=0.
+			\]
+			
+			\item For all other nodes, the initial estimate
+			is infinity:
+			\[
+			V(k)=+\infty,\qquad k\ne g.
+			\]
+		\end{itemize}
+		
+		We then iteratively update these estimates using
+		the costs of moving to adjacent nodes.
+		
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Value Iteration: Updates}
+	\begin{flushleft}
+		
+		We update the cost-to-go estimates using the
+		\textbf{Bellman equation}:
+		
+		\[
+		V(k)=\min_{m\in\mathcal{N}(k)}
+		\bigl(c(k,m)+V(m)\bigr).
+		\]
+		
+		This equation states that the minimum cost to
+		the goal is obtained by choosing the best
+		successor node and adding the cost of moving
+		to that node.
+		
+		\medskip
+		In each iteration, we update the estimates for
+		all nodes using the current estimates of their
+		neighbors.
+		
+		\medskip
+		We repeat this process until the estimates
+		converge.
+		
+	\end{flushleft}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Value Iteration: Recovering the Path}
+	\begin{flushleft}
+		
+		Once the algorithm converges, we can recover
+		the shortest path from any starting node $s$.
+		
+		\medskip
+		At each node $k$, we select the successor $m$
+		that minimizes the sum of the edge cost and
+		the cost-to-go:
+		
+		\[
+		m=\arg\min_{m\in\mathcal{N}(k)}
+		\bigl(c(k,m)+V(m)\bigr).
+		\]
+		
+		We move to the selected successor and repeat
+		until we reach the goal node $g$.
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+
+\begin{frame}{Literature}
+	\begin{itemize}
+		
+		\item Erik Demaine, Ronald Rivest, Srini Devadas -- MIT:
+		\bref{https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2008/pages/lecture-notes/}
+		{Introduction to Algorithms: Lecture Notes, lectures 15--18 (Shortest Paths and Dijkstra).}
+		
+		\item Jason Ku, Justin Solomon -- MIT:
+		\bref{https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/resources/mit6_006s20_lec13/}
+		{Introduction to Algorithms: Lecture 13, Dijkstra's Algorithm.}
+		
+		\item MIT OpenCourseWare:
+		\bref{https://ocw.mit.edu/courses/6-231-dynamic-programming-and-stochastic-control-fall-2015/resources/mit6_231f15_lec10/}
+		{Dynamic Programming and Stochastic Control: Lecture 10, Bellman's Equation and Value Iteration.}
+		
+	\end{itemize}
+\end{frame}
+
+
+
+
+\myqrframe
+
+
+
+
+\end{document}
