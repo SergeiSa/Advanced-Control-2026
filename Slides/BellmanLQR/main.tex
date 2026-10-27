@@ -1,0 +1,533 @@
+\documentclass{beamer}
+
+\input{settings.tex}
+\usetikzlibrary{shapes.geometric, decorations.markings, positioning, patterns, calc, arrows.meta}
+
+
+\subtitle{Advanced Control}
+\author{by Sergei Savin}
+\centering
+\date{\mydate}
+
+
+
+\title{Bellman Equation, LQR}
+\begin{document}
+\maketitle
+
+
+\begin{frame}{Content}
+	\begin{itemize}
+		\item Optimality and the Value Function
+		\item Bellman Equation
+		\item Finite-Horizon Discrete-Time LQR
+		\begin{itemize}
+			\item Optimal controller
+			\item Riccati recursion
+		\end{itemize}
+		\item Infinite-Horizon Discrete-Time LQR
+		\begin{itemize}
+			\item Algebraic Riccati equation
+			\item Solving the Riccati equation numerically
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+
+
+%------------------------------------------------
+\begin{frame}{Optimality}
+	\begin{flushleft}
+		
+		Consider a discrete-time dynamical system:
+		\[
+		x_{k+1}=f(x_k,u_k).
+		\]
+		
+		A control law is given by
+		\[
+		u_k=\pi(x_k).
+		\]
+		
+		For a finite time horizon of $N$ steps, let the cost be
+		\[
+		J=\phi(x_N)+\sum_{k=0}^{N-1}\ell(x_k,u_k).
+		\]
+		
+		\medskip
+		
+		We can now pose the following question:
+		
+		\medskip
+		
+		\emph{What is the optimal control law $\pi^*$ and the
+			corresponding trajectory that minimize the cost $J$?}
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Value Function}
+	\begin{flushleft}
+		
+		We define the value function $V_k(x)$ as the minimum
+		cost achievable when starting from $x_k=x$ and
+		considering the remaining $N-k$ steps:
+		\[
+		\begin{aligned}
+			V_k(x)=\min_{u_k,\ldots,u_{N-1}}\quad
+			&\phi(x_N)+\sum_{i=k}^{N-1}\ell(x_i,u_i)\\
+			\text{subject to}\quad
+			&x_{i+1}=f(x_i,u_i),\\
+			&x_k=x.
+		\end{aligned}
+		\]
+		
+		\medskip
+		
+		The value function represents the \textbf{optimal
+			cost-to-go}: the lowest possible cost for a fixed
+		number of remaining time steps.
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Bellman Equation}
+	\begin{flushleft}
+		
+		The Bellman equation describes how the value function
+		at one step is related to the value function at the
+		next step:
+		\[
+		\boxed{
+			V_k(x)=\min_u
+			\left[
+			\ell(x,u)+V_{k+1}\bigl(f(x,u)\bigr)
+			\right].
+		}
+		\]
+		
+		\medskip
+		
+		The optimal cost-to-go consists of two parts:
+		\begin{itemize}
+			\item The immediate cost $\ell(x,u)$.
+			\item The optimal cost-to-go from the next state.
+		\end{itemize}
+		
+		\medskip
+		
+		At the terminal step, no time remains, so the value
+		function equals the terminal cost:
+		\[
+		V_N(x)=\phi(x).
+		\]
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+
+
+
+%------------------------------------------------
+\begin{frame}{Linear Case}
+	\begin{flushleft}
+		
+		Consider linear dynamics:
+		\[
+		x_{k+1}=Ax_k+Bu_k.
+		\]
+		
+		For now, suppose that the control law is linear:
+		\[
+		u_k=-Kx_k.
+		\]
+		
+		The closed-loop dynamics are
+		\[
+		x_{k+1}=(A-BK)x_k.
+		\]
+		
+		\medskip
+		
+		We consider a quadratic cost function:
+		\[
+		J=x_N^\top Q_Nx_N+
+		\sum_{i=0}^{N-1}
+		\left(x_i^\top Qx_i+u_i^\top Ru_i\right),
+		\]
+		where $Q_N\succeq0$, $Q\succeq0$, and $R\succ0$.
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Linear Case: Value Function}
+	\begin{flushleft}
+		{\small
+		Let us first consider a fixed linear controller
+		$u_k=-Kx_k$.
+		
+		Under this controller, the future state depends on the
+		current state as follows:
+		\[
+		x_i=(A-BK)^{i-k}x_k.
+		\]
+		
+		Moreover,
+		\[
+		x_i^\top Qx_i+u_i^\top Ru_i
+		=x_i^\top(Q+K^\top RK)x_i.
+		\]
+		
+		\medskip
+		
+		Therefore, the cost-to-go under this controller is
+		quadratic:
+		\[
+		V_k(x)=x^\top S_kx,
+		\]
+		where
+		\[
+		\begin{aligned}
+			S_k={}&
+			\bigl((A-BK)^{N-k}\bigr)^\top
+			Q_N(A-BK)^{N-k}\\
+			&+\sum_{i=k}^{N-1}
+			\bigl((A-BK)^{i-k}\bigr)^\top
+			(Q+K^\top RK)
+			(A-BK)^{i-k}.
+		\end{aligned}
+		\]
+		
+		\medskip
+		
+		The same quadratic form will describe the optimal
+		value function, but with matrices $S_k$ determined
+		by the Bellman equation.}
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+
+
+%------------------------------------------------
+\begin{frame}{Linear Case: Bellman Equation}
+	\begin{flushleft}
+		
+		The Bellman equation is
+		\[
+		V_k(x)=\min_u
+		\left[
+		\ell(x,u)+V_{k+1}(Ax+Bu)
+		\right].
+		\]
+		
+		For the quadratic cost, suppose that
+		\[
+		V_k(x)=x^\top S_kx.
+		\]
+		
+		Then the Bellman equation becomes
+		\[
+		x_k^\top S_kx_k
+		=\min_{u_k}\left[
+		x_k^\top Qx_k+u_k^\top Ru_k
+		+x_{k+1}^\top S_{k+1}x_{k+1}
+		\right].
+		\]
+		
+		\medskip
+		
+		Since $x_{k+1}=Ax_k+Bu_k$, we can write, using
+		$x=x_k$ and $u=u_k$:
+		\[
+		\boxed{
+			x^\top S_kx=\min_u
+			\left[
+			x^\top Qx+u^\top Ru
+			+(Ax+Bu)^\top S_{k+1}(Ax+Bu)
+			\right].
+		}
+		\]
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Optimal Controller}
+	\begin{flushleft}
+		
+		To find the optimal control, we differentiate the
+		expression inside the minimization with respect to $u$
+		and set the derivative to zero:
+		\[
+		\begin{aligned}
+			&2Ru+2B^\top S_{k+1}Bu +2B^\top S_{k+1}Ax=0.
+		\end{aligned}
+		\]
+		
+		Equivalently,
+		\[
+		(R+B^\top S_{k+1}B)u
+		=-B^\top S_{k+1}Ax.
+		\]
+		
+		\medskip
+		
+		Solving for $u$ gives the optimal control law:
+		\[
+		\boxed{
+			u=-K_kx,
+		}
+		\]
+		where
+		\[
+		\boxed{
+			K_k=(R+B^\top S_{k+1}B)^{-1}
+			B^\top S_{k+1}A.
+		}
+		\]
+		
+		\medskip
+		
+		To compute the optimal gain at each step, we need
+		the matrix $S_{k+1}$.
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Discrete-Time Riccati Recursion}
+	\begin{flushleft}
+		
+		Substituting the optimal control into the Bellman
+		equation gives
+		\[
+		\begin{aligned}
+			x^\top S_kx
+			={}&x^\top Qx+x^\top A^\top S_{k+1}Ax\\
+			&-x^\top A^\top S_{k+1}B (R+B^\top S_{k+1}B)^{-1} B^\top S_{k+1}Ax.
+		\end{aligned}
+		\]
+		
+		\medskip
+		
+		Since this equality must hold for every $x$, the
+		matrices of the quadratic forms must be equal.
+		We obtain the discrete-time Riccati recursion:
+		\[
+		\boxed{
+			\begin{aligned}
+				S_k={}&Q+A^\top S_{k+1}A-A^\top S_{k+1}B
+				(R+B^\top S_{k+1}B)^{-1} B^\top S_{k+1}A
+			\end{aligned}
+		}
+		\]
+		
+		\medskip
+		
+		The terminal condition follows from
+		$V_N(x)=x^\top Q_Nx$:
+		\[
+		S_N=Q_N.
+		\]
+		
+		Starting from $S_N$, we compute $S_{N-1}$,
+		then $S_{N-2}$, and continue backward until $S_0$.
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+
+
+
+%------------------------------------------------
+\begin{frame}{Infinite-Horizon Cost}
+	\begin{flushleft}
+		
+		Consider a different cost function:
+		\[
+		J=\sum_{k=0}^{\infty}
+		\left(x_k^\top Qx_k+u_k^\top Ru_k\right).
+		\]
+		
+		\medskip
+		
+		Notice two important differences from the finite-horizon
+		case:
+		\begin{itemize}
+			\item There is no terminal cost.
+			\item The cost is accumulated over an infinite
+			number of time steps.
+		\end{itemize}
+		
+		\medskip
+		
+		This leads to the \textbf{infinite-horizon
+			discrete-time LQR} problem.
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Infinite-Horizon Case: Value Function}
+	\begin{flushleft}
+		
+		In the finite-horizon case, the value function $V_k(x)$
+		depends on the number of time steps remaining.
+		
+		\medskip
+		
+		In the infinite-horizon case, there are always infinitely
+		many steps remaining. For a time-invariant system and
+		cost, the optimal cost-to-go does not depend on the
+		current time step.
+		
+		\medskip
+		
+		We can therefore write
+		\[
+		V(x)=\min_{u_0,u_1,\ldots}
+		\sum_{k=0}^{\infty}
+		\left(x_k^\top Qx_k+u_k^\top Ru_k\right).
+		\]
+		
+		\medskip
+		
+		As before, the value function is quadratic:
+		\[
+		\boxed{V(x)=x^\top Sx.}
+		\]
+		
+		Here, $S$ is a constant matrix rather than a
+		time-dependent sequence of matrices $S_k$.
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Infinite-Horizon Discrete-Time LQR}
+	\begin{flushleft}
+		
+		The Bellman equation becomes
+		\[
+		V(x)=\min_u
+		\left[
+		x^\top Qx+u^\top Ru+V(Ax+Bu)
+		\right].
+		\]
+		
+		Substituting $V(x)=x^\top Sx$, we obtain
+		\[
+		x^\top Sx=\min_u
+		\left[
+		x^\top Qx+u^\top Ru
+		+(Ax+Bu)^\top S(Ax+Bu)
+		\right].
+		\]
+		
+		\medskip
+		
+		Repeating the steps from the finite-horizon case gives
+		the optimal control law:
+		\[
+		\boxed{
+			u=-Kx,
+			\qquad
+			K=(R+B^\top SB)^{-1}B^\top SA.
+		}
+		\]
+		
+		\medskip
+		
+		Substituting the optimal control into the Bellman
+		equation yields the discrete-time algebraic
+		Riccati equation:
+		\[
+		\boxed{
+			\begin{aligned}
+				S={}&Q+A^\top SA\\
+				&-A^\top SB(R+B^\top SB)^{-1}B^\top SA.
+			\end{aligned}
+		}
+		\]
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Solving the Riccati Equation}
+	\begin{flushleft}
+		
+		The discrete-time algebraic Riccati equation can be
+		solved numerically using standard control libraries.
+		
+		\medskip
+		
+		\begin{itemize}
+			\item \textbf{Python (SciPy):}
+			\texttt{scipy.linalg.solve\_discrete\_are(A, B, Q, R)}
+			
+			\medskip
+			
+			\item \textbf{MATLAB:}
+			\texttt{dlqr(A, B, Q, R)}
+			
+			\medskip
+			
+			\item \textbf{Julia:}
+			\texttt{lqr(Discrete, A, B, Q, R)}
+		\end{itemize}
+		
+		\medskip
+		
+		Once $S$ is obtained, the optimal feedback gain is
+		\[
+		K=(R+B^\top SB)^{-1}B^\top SA.
+		\]
+		
+		The resulting control law $u=-Kx$ is time-invariant.
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+
+
+\begin{frame}{Literature}
+	\begin{itemize}
+		
+		\item MIT OpenCourseWare:
+		\bref{https://ocw.mit.edu/courses/16-323-principles-of-optimal-control-spring-2008/pages/lecture-notes/}
+		{Principles of Optimal Control: Lecture 3, Dynamic Programming and Discrete LQR.}
+		
+		\item Russ Tedrake -- MIT:
+		\bref{https://underactuated.mit.edu/lqr.html}
+		{Underactuated Robotics: Linear Quadratic Regulators, including the discrete-time Riccati equation.}
+		
+		\item University of Washington:
+		\bref{https://faculty.washington.edu/ratliffl/teaching/2020_LinearSystems.pdf}
+		{Lecture 10: Linear Quadratic Regulator -- Discrete Time.}
+		
+		\item SciPy documentation:
+		\bref{https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.solve_discrete_are.html}
+		{Linear Algebra: \texttt{solve\_discrete\_are}, numerical solution of the discrete-time algebraic Riccati equation.}
+		
+	\end{itemize}
+\end{frame}
+
+
+
+
+
+\myqrframe
+
+
+
+
+\end{document}

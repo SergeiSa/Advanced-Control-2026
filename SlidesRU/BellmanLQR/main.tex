@@ -1,0 +1,539 @@
+\documentclass{beamer}
+
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\input{settings.tex}
+
+
+\newcommand{\myqrframe}{
+	\begin{frame}
+		\begin{center}
+			\centerline{Слайды доступны на Github:}
+			\bigskip
+			\centerline{\mygit}
+			\bigskip
+			\myqr
+		\end{center}
+	\end{frame}
+}
+
+
+\subtitle{Современные методы управления роботами}
+\author{Сергей Савин}
+\date{2026}
+
+\title{Линейный-квадратичный регулятор, Уравнение Беллмана}
+\begin{document}
+	\maketitle
+	
+	
+	\begin{frame}{Содержание}
+		\begin{itemize}
+			\item Оптимальность и функция ценности
+			\item Уравнение Беллмана
+			\item Конечно-горизонтный дискретный LQR
+			\begin{itemize}
+				\item Оптимальный регулятор
+				\item Рекурсия Риккати
+			\end{itemize}
+			\item Бесконечно-горизонтный дискретный LQR
+			\begin{itemize}
+				\item Алгебраическое уравнение Риккати
+				\item Численное решение уравнения Риккати
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+	
+	
+	
+	%------------------------------------------------
+	\begin{frame}{Оптимальность}
+		\begin{flushleft}
+			
+			Рассмотрим дискретную динамическую систему:
+			\[
+			x_{k+1}=f(x_k,u_k).
+			\]
+			
+			Закон управления задаётся в виде
+			\[
+			u_k=\pi(x_k).
+			\]
+			
+			Для конечного горизонта в $N$ шагов пусть стоимость равна
+			\[
+			J=\phi(x_N)+\sum_{k=0}^{N-1}\ell(x_k,u_k).
+			\]
+			
+			\medskip
+			
+			Теперь мы можем поставить следующий вопрос:
+			
+			\medskip
+			
+			\emph{Каков оптимальный закон управления $\pi^*$ и
+				соответствующая траектория, минимизирующие стоимость $J$?}
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	\begin{frame}{Функция ценности}
+		\begin{flushleft}
+			
+			Определим функцию ценности $V_k(x)$ как минимальную
+			стоимость, достижимую при старте из $x_k=x$ с
+			учётом оставшихся $N-k$ шагов:
+			\[
+			\begin{aligned}
+				V_k(x)=\min_{u_k,\ldots,u_{N-1}}\quad
+				&\phi(x_N)+\sum_{i=k}^{N-1}\ell(x_i,u_i)\\
+				\text{subject to}\quad
+				&x_{i+1}=f(x_i,u_i),\\
+				&x_k=x.
+			\end{aligned}
+			\]
+			
+			\medskip
+			
+			Функция ценности представляет собой \textbf{оптимальную
+				стоимость до конца}: наименьшую возможную стоимость при
+			фиксированном числе оставшихся шагов.
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	\begin{frame}{Уравнение Беллмана}
+		\begin{flushleft}
+			
+			Уравнение Беллмана описывает, как функция ценности
+			на одном шаге связана с функцией ценности на
+			следующем шаге:
+			\[
+			\boxed{
+				V_k(x)=\min_u
+				\left[
+				\ell(x,u)+V_{k+1}\bigl(f(x,u)\bigr)
+				\right].
+			}
+			\]
+			
+			\medskip
+			
+			Оптимальная стоимость до конца состоит из двух частей:
+			\begin{itemize}
+				\item Мгновенная стоимость $\ell(x,u)$.
+				\item Оптимальная стоимость до конца из следующего состояния.
+			\end{itemize}
+			
+			\medskip
+			
+			На терминальном шаге времени не остаётся, поэтому
+			функция ценности равна терминальной стоимости:
+			\[
+			V_N(x)=\phi(x).
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	
+	
+	
+	%------------------------------------------------
+	\begin{frame}{Линейный случай}
+		\begin{flushleft}
+			
+			Рассмотрим линейную динамику:
+			\[
+			x_{k+1}=Ax_k+Bu_k.
+			\]
+			
+			Пока предположим, что закон управления линейный:
+			\[
+			u_k=-Kx_k.
+			\]
+			
+			Динамика замкнутой системы имеет вид
+			\[
+			x_{k+1}=(A-BK)x_k.
+			\]
+			
+			\medskip
+			
+			Рассмотрим квадратичную функцию стоимости:
+			\[
+			J=x_N^\top Q_Nx_N+
+			\sum_{i=0}^{N-1}
+			\left(x_i^\top Qx_i+u_i^\top Ru_i\right),
+			\]
+			где $Q_N\succeq0$, $Q\succeq0$ и $R\succ0$.
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	\begin{frame}{Линейный случай: функция ценности}
+		\begin{flushleft}
+			{\small
+				Сначала рассмотрим фиксированный линейный регулятор
+				$u_k=-Kx_k$.
+				
+				При этом регуляторе будущее состояние зависит от
+				текущего состояния следующим образом:
+				\[
+				x_i=(A-BK)^{i-k}x_k.
+				\]
+				
+				Кроме того,
+				\[
+				x_i^\top Qx_i+u_i^\top Ru_i
+				=x_i^\top(Q+K^\top RK)x_i.
+				\]
+				
+				\medskip
+				
+				Следовательно, стоимость до конца при этом регуляторе
+				является квадратичной: $V_k(x)=x^\top S_kx$, где
+				\[
+				\begin{aligned}
+					S_k={}&
+					\bigl((A-BK)^{N-k}\bigr)^\top
+					Q_N(A-BK)^{N-k}\\
+					&+\sum_{i=k}^{N-1}
+					\bigl((A-BK)^{i-k}\bigr)^\top
+					(Q+K^\top RK)
+					(A-BK)^{i-k}.
+				\end{aligned}
+				\]
+				
+				\medskip
+				
+				Та же квадратичная форма будет описывать оптимальную
+				функцию ценности, но с матрицами $S_k$, определяемыми
+				уравнением Беллмана.}
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	
+	
+	%------------------------------------------------
+	\begin{frame}{Линейный случай: уравнение Беллмана}
+		\begin{flushleft}
+			
+			Уравнение Беллмана имеет вид
+			\[
+			V_k(x)=\min_u
+			\left[
+			\ell(x,u)+V_{k+1}(Ax+Bu)
+			\right].
+			\]
+			
+			Для квадратичной стоимости предположим, что
+			\[
+			V_k(x)=x^\top S_kx.
+			\]
+			
+			Тогда уравнение Беллмана принимает вид
+			\[
+			x_k^\top S_kx_k
+			=\min_{u_k}\left[
+			x_k^\top Qx_k+u_k^\top Ru_k
+			+x_{k+1}^\top S_{k+1}x_{k+1}
+			\right].
+			\]
+			
+			\medskip
+			
+			Поскольку $x_{k+1}=Ax_k+Bu_k$, можно записать,
+			используя $x=x_k$ и $u=u_k$:
+			\[
+			\boxed{
+				x^\top S_kx=\min_u
+				\left[
+				x^\top Qx+u^\top Ru
+				+(Ax+Bu)^\top S_{k+1}(Ax+Bu)
+				\right]
+			}
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	\begin{frame}{Оптимальный регулятор}
+		\begin{flushleft}
+			
+			Чтобы найти оптимальное управление, продифференцируем
+			выражение внутри минимизации по $u$
+			и приравняем производную к нулю:
+			\[
+			\begin{aligned}
+				&2Ru+2B^\top S_{k+1}Bu +2B^\top S_{k+1}Ax=0.
+			\end{aligned}
+			\]
+			
+			Эквивалентно,
+			\[
+			(R+B^\top S_{k+1}B)u
+			=-B^\top S_{k+1}Ax.
+			\]
+			
+			\medskip
+			
+			Разрешая относительно $u$, получаем оптимальный закон управления:
+			\[
+			\boxed{
+				u=-K_kx
+			}
+			\]
+			где
+			\[
+			\boxed{
+				K_k=(R+B^\top S_{k+1}B)^{-1}
+				B^\top S_{k+1}A
+			}
+			\]
+			
+			\medskip
+			
+			Чтобы вычислить оптимальный коэффициент усиления на каждом шаге,
+			нам нужна матрица $S_{k+1}$.
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	\begin{frame}{Дискретная рекурсия Риккати}
+		\begin{flushleft}
+			
+			Подстановка оптимального управления в уравнение Беллмана
+			даёт
+			\[
+			\begin{aligned}
+				x^\top S_kx
+				={}&x^\top Qx+x^\top A^\top S_{k+1}Ax\\
+				&-x^\top A^\top S_{k+1}B (R+B^\top S_{k+1}B)^{-1} B^\top S_{k+1}Ax.
+			\end{aligned}
+			\]
+			
+			\medskip
+			
+			Поскольку это равенство должно выполняться для любого $x$,
+			матрицы квадратичных форм должны быть равны.
+			Получаем дискретную рекурсию Риккати:
+			\[
+			\boxed{
+				\begin{aligned}
+					S_k={}&Q+A^\top S_{k+1}A-A^\top S_{k+1}B
+					(R+B^\top S_{k+1}B)^{-1} B^\top S_{k+1}A
+				\end{aligned}
+			}
+			\]
+			
+			\medskip
+			
+			Терминальное условие следует из
+			$V_N(x)=x^\top Q_Nx$:
+			\[
+			S_N=Q_N.
+			\]
+			
+			Начиная с $S_N$, вычисляем $S_{N-1}$,
+			затем $S_{N-2}$ и продолжаем в обратном направлении до $S_0$.
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	
+	
+	
+	%------------------------------------------------
+	\begin{frame}{Бесконечно-горизонтная стоимость}
+		\begin{flushleft}
+			
+			Рассмотрим другую функцию стоимости:
+			\[
+			J=\sum_{k=0}^{\infty}
+			\left(x_k^\top Qx_k+u_k^\top Ru_k\right).
+			\]
+			
+			\medskip
+			
+			Заметим два важных отличия от конечно-горизонтного
+			случая:
+			\begin{itemize}
+				\item Отсутствует терминальная стоимость.
+				\item Стоимость накапливается за бесконечное
+				число шагов по времени.
+			\end{itemize}
+			
+			\medskip
+			
+			Это приводит к задаче \textbf{бесконечно-горизонтного
+				дискретного LQR}.
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	\begin{frame}{Бесконечно-горизонтный случай: функция ценности}
+		\begin{flushleft}
+			
+			В конечно-горизонтном случае функция ценности $V_k(x)$
+			зависит от числа оставшихся шагов по времени.
+			
+			\medskip
+			
+			В бесконечно-горизонтном случае всегда остаётся бесконечно
+			много шагов. Для стационарной системы и
+			стоимости оптимальная стоимость до конца не зависит от
+			текущего шага по времени.
+			
+			\medskip
+			
+			Поэтому можно записать
+			\[
+			V(x)=\min_{u_0,u_1,\ldots}
+			\sum_{k=0}^{\infty}
+			\left(x_k^\top Qx_k+u_k^\top Ru_k\right).
+			\]
+			
+			\medskip
+			
+			Как и прежде, функция ценности является квадратичной:
+			\[
+			\boxed{V(x)=x^\top Sx.}
+			\]
+			
+			Здесь $S$ — постоянная матрица, а не
+			зависящая от времени последовательность матриц $S_k$.
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	\begin{frame}{Бесконечно-горизонтный дискретный LQR}
+		\begin{flushleft}
+			
+			Уравнение Беллмана принимает вид
+			\[
+			V(x)=\min_u
+			\left[
+			x^\top Qx+u^\top Ru+V(Ax+Bu)
+			\right].
+			\]
+			
+			Подставляя $V(x)=x^\top Sx$, получаем
+			\[
+			x^\top Sx=\min_u
+			\left[
+			x^\top Qx+u^\top Ru
+			+(Ax+Bu)^\top S(Ax+Bu)
+			\right].
+			\]
+			
+			\medskip
+			
+			Повторяя шаги из конечно-горизонтного случая, получаем
+			оптимальный закон управления:
+			\[
+			\boxed{
+				u=-Kx,
+				\qquad
+				K=(R+B^\top SB)^{-1}B^\top SA.
+			}
+			\]
+			
+			\medskip
+			
+			Подстановка оптимального управления в уравнение Беллмана
+			даёт дискретное алгебраическое уравнение
+			Риккати:
+			\[
+			\boxed{
+				\begin{aligned}
+					S= Q+A^\top SA -A^\top SB(R+B^\top SB)^{-1}B^\top SA.
+				\end{aligned}
+			}
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	\begin{frame}{Решение уравнения Риккати}
+		\begin{flushleft}
+			
+			Дискретное алгебраическое уравнение Риккати можно
+			решить численно с помощью стандартных библиотек теории управления.
+			
+			\medskip
+			
+			\begin{itemize}
+				\item \textbf{Python (SciPy):}
+				\texttt{scipy.linalg.solve\_discrete\_are(A, B, Q, R)}
+				
+				\medskip
+				
+				\item \textbf{MATLAB:}
+				\texttt{dlqr(A, B, Q, R)}
+				
+				\medskip
+				
+				\item \textbf{Julia:}
+				\texttt{lqr(Discrete, A, B, Q, R)}
+			\end{itemize}
+			
+			\medskip
+			
+			После получения $S$ оптимальный коэффициент обратной связи равен
+			\[
+			K=(R+B^\top SB)^{-1}B^\top SA.
+			\]
+			
+			Полученный закон управления $u=-Kx$ является стационарным.
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+
+\begin{frame}{Литература}
+	\begin{itemize}
+		
+		\item MIT OpenCourseWare:
+		\bref{https://ocw.mit.edu/courses/16-323-principles-of-optimal-control-spring-2008/pages/lecture-notes/}
+		{Principles of Optimal Control: Lecture 3, Dynamic Programming and Discrete LQR.}
+		
+		\item Russ Tedrake -- MIT:
+		\bref{https://underactuated.mit.edu/lqr.html}
+		{Underactuated Robotics: Linear Quadratic Regulators, including the discrete-time Riccati equation.}
+		
+		\item University of Washington:
+		\bref{https://faculty.washington.edu/ratliffl/teaching/2020_LinearSystems.pdf}
+		{Lecture 10: Linear Quadratic Regulator -- Discrete Time.}
+		
+		\item SciPy documentation:
+		\bref{https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.solve_discrete_are.html}
+		{Linear Algebra: \texttt{solve\_discrete\_are}, numerical solution of the discrete-time algebraic Riccati equation.}
+		
+	\end{itemize}
+\end{frame}
+
+
+
+
+
+\myqrframe
+
+
+
+
+\end{document}
