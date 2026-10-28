@@ -59,6 +59,19 @@ jobs:
           root_file: main.tex
           working_directory: SlidesRU/AdjointMethod/
 
+      - name: Compile LaTeX document GraphSearch
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: SlidesRU/GraphSearch/
+
+      - name: Compile LaTeX document BellmanLQR
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: SlidesRU/BellmanLQR/
+
+
 
 
 
@@ -105,6 +118,18 @@ jobs:
           name: AdjointMethod.pdf
           path: SlidesRU/AdjointMethod/main.pdf
 
+      - name: Save GraphSearch artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GraphSearch.pdf
+          path: SlidesRU/GraphSearch/main.pdf
+
+      - name: Save BellmanLQR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BellmanLQR.pdf
+          path: SlidesRU/BellmanLQR/main.pdf
+
 
 
       - name: Update compiled PDFs in git repository
@@ -117,6 +142,8 @@ jobs:
           mv SlidesRU/TrajectoryPlanning/main.pdf SlidesRU/TrajectoryPlanning.pdf
           mv SlidesRU/ShootingCollocation/main.pdf SlidesRU/ShootingCollocation.pdf
           mv SlidesRU/AdjointMethod/main.pdf SlidesRU/AdjointMethod.pdf
+          mv SlidesRU/GraphSearch/main.pdf SlidesRU/GraphSearch.pdf
+          mv SlidesRU/BellmanLQR/main.pdf SlidesRU/BellmanLQR.pdf
 
 
 
@@ -129,6 +156,8 @@ jobs:
           git add SlidesRU/TrajectoryPlanning.pdf
           git add SlidesRU/ShootingCollocation.pdf
           git add SlidesRU/AdjointMethod.pdf
+          git add SlidesRU/GraphSearch.pdf
+          git add SlidesRU/BellmanLQR.pdf
 
 
 
