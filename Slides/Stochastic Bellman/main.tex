@@ -1,0 +1,477 @@
+\documentclass{beamer}
+
+\input{settings.tex}
+\usetikzlibrary{shapes.geometric, decorations.markings, positioning, patterns, calc, arrows.meta}
+
+
+\subtitle{Advanced Control}
+\author{by Sergei Savin}
+\centering
+\date{\mydate}
+
+
+
+\title{Stochastic Bellman Equation}
+\begin{document}
+\maketitle
+
+
+\begin{frame}{Content}
+	\begin{itemize}
+		\item Stochastic sequences and expectation
+		\item Stochastic linear systems
+		\item Finite-horizon stochastic cost
+		\item Stochastic Bellman equation
+		\item Stochastic Riccati equation
+		\item Infinite-horizon cost with discounting
+		\item Value functions and action-value functions
+		\item Discounted Bellman and Riccati equations
+		\item Appendix: derivation of the stochastic Riccati equation
+	\end{itemize}
+\end{frame}
+
+
+
+%------------------------------------------------
+\begin{frame}{Stochastic sequences}
+	\begin{flushleft}
+		
+
+Let $w_k$ be a random (stochastic) sequence with expectation
+\[
+\mu = \mathbb{E}[w_k].
+\]
+
+Given $N$ samples, we can estimate its expectation using the sample mean:
+\[
+\hat{\mu}_N = \frac{1}{N}\sum_{i=k}^{k+N-1} w_i.
+\]
+
+Under appropriate assumptions (e.g., independent identically distributed
+samples with finite mean), we have
+\[
+\lim_{N\to\infty}\hat{\mu}_N = \mathbb{E}[w_k].
+\]
+
+\vspace{0.3cm}
+
+Expectation is a linear operator. In particular, for constant matrices
+$A,B$ and random vectors $x,u$:
+\[
+\boxed{
+	\mathbb{E}[Ax+Bu]
+	= A\mathbb{E}[x]+B\mathbb{E}[u]
+}
+\]
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Stochastic linear systems}
+	\begin{flushleft}
+		
+Consider a discrete-time LTI system:
+\[
+x_{k+1}=Ax_k+w_k,
+\]
+where $w_k$ is an element of a stochastic sequence.
+
+We can make the following observations:
+
+\begin{itemize}
+	\item Without knowing the realization of $w_k$, we cannot predict
+	the exact value of $x_{k+1}$.
+	
+	\item Consequently, even for a known initial state, $x_{k+1}$
+	is a random variable.
+	
+	\item While exact state values cannot be predicted, we can
+	analyze their statistical properties.
+\end{itemize}
+
+\vspace{0.2cm}
+
+For example, using the linearity of expectation:
+\[
+\boxed{
+	\mathbb{E}[x_{k+1}]
+	= A\mathbb{E}[x_k]+\mathbb{E}[w_k]
+}
+\]
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Finite-horizon stochastic cost}
+	\begin{flushleft}
+		
+Let us introduce a quadratic cost function suitable for a
+stochastic linear system:
+\[
+J = \mathbb{E}\left[
+\sum_{k=0}^{N-1} \ell(x_k,u_k)
++ x_N^\top Q_N x_N
+\right],
+\]
+where the stage cost is
+\[
+\ell(x_k,u_k)
+= x_k^\top Q x_k + u_k^\top R u_k.
+\]
+
+Here, $Q\succeq 0, Q_N\succeq 0$ and $R\succ 0$.
+
+\vspace{0.3cm}
+
+As in the deterministic case, we define the value function
+at step $k$ as the minimum expected cost-to-go:
+\[
+\boxed{
+	V_k(x) =
+	\min_{u_k,\ldots,u_{N-1}}
+	\mathbb{E}\left[
+	\sum_{i=k}^{N-1}\ell(x_i,u_i)
+	+x_N^\top Q_N x_N
+	\,\middle|\, x_k=x
+	\right]
+}
+\]
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+
+
+
+%------------------------------------------------
+\begin{frame}{Stochastic Bellman equation}
+	\begin{flushleft}
+		
+As in the deterministic case, we can use Bellman's principle
+to express the value function recursively:
+
+\[
+V_k(x_k) =
+\min_{u_k}
+\left\{
+\ell(x_k,u_k)
++ \mathbb{E}\left[
+V_{k+1}(x_{k+1}) \mid x_k,u_k
+\right]
+\right\}.
+\]
+
+For our stochastic linear system:
+\[
+x_{k+1}=Ax_k+Bu_k+w_k,
+\]
+we obtain
+\[
+\boxed{
+	V_k(x) =
+	\min_u
+	\left\{
+	x^\top Qx+u^\top Ru
+	+\mathbb{E}\left[
+	V_{k+1}(Ax+Bu+w_k)
+	\right]
+	\right\}.
+}
+\]
+
+The terminal condition is
+\[
+V_N(x)=x^\top Q_Nx.
+\]
+		
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}{Stochastic Riccati equation}
+	\begin{flushleft}
+For zero-mean independent disturbances with covariance
+\[
+\mathbb{E}[w_k]=0,\qquad
+\mathbb{E}[w_kw_k^\top]=W,
+\]
+the value function retains a quadratic form:
+\[
+\boxed{
+	V_k(x)=x^\top P_kx+c_k.
+}
+\]
+
+Substituting this expression into the Bellman equation gives
+an optimal linear control law:
+\[
+u_k=K_kx_k,
+\]
+where
+\[
+	K_k =
+	-(R+B^\top P_{k+1}B)^{-1}
+	B^\top P_{k+1}A.
+\]
+
+The matrix $P_k$ is found using the Riccati recursion:
+\[
+		P_k=Q+A^\top P_{k+1}A
+		-A^\top P_{k+1}B
+		(R+B^\top P_{k+1}B)^{-1}
+		B^\top P_{k+1}A.
+\]
+
+with terminal condition $P_N=Q_N$.
+	\end{flushleft}
+\end{frame}
+%------------------------------------------------
+
+
+\begin{frame}{Infinite-horizon cost}
+	\begin{flushleft}
+		
+		{\small 
+		We can consider an infinite-horizon version of the stochastic
+		optimal control problem.
+		
+		One issue is that the accumulated cost can become infinite:
+		even if the system is stable, persistent stochastic disturbances
+		keep introducing uncertainty into the state.
+		
+		\vspace{0.2cm}
+		
+		One way to manage this problem is to introduce a discounting
+		factor $0 < \gamma < 1$:
+		
+		\[
+		\boxed{
+			J = \mathbb{E}\left[
+			\sum_{k=0}^{\infty}
+			\gamma^k \ell(x_k,u_k)
+			\right].
+		}
+		\]
+		
+		\vspace{0.2cm}
+		
+		\begin{itemize}
+			\item Discounting allows the expected accumulated cost to remain
+			finite under standard bounded-cost assumptions.
+			
+			\item It gives priority to immediate costs, while progressively
+			reducing the importance of costs incurred further into the future.
+			
+			\item As before, the infinite-horizon formulation has no terminal
+			cost component.
+		\end{itemize}
+	}
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Value function with discounted cost}
+	\begin{flushleft}
+		
+		For a given policy $\pi$, we define the on-policy state-value
+		function as the expected discounted cost-to-go:
+		
+		\[
+		V^\pi(x) =
+		\mathbb{E}_\pi\left[
+		\sum_{k=0}^{\infty}
+		\gamma^k \ell(x_k,u_k)
+		\,\middle|\, x_0=x
+		\right].
+		\]
+		
+		\vspace{0.3cm}
+		
+		The optimal state-value function is the minimum over all
+		admissible policies:
+		
+		\[
+		V^*(x)=\min_\pi V^\pi(x).
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+\begin{frame}{Bellman equation with discounted cost}
+	\begin{flushleft}
+		
+		The infinite-horizon Bellman optimality equation takes the form:
+		%
+		\[
+		V^*(x)=
+		\min_u\left\{
+		\ell(x,u)+
+		\gamma\mathbb{E}\left[
+		V^*(x_{k+1})\mid x_k=x,u_k=u
+		\right]
+		\right\}.
+		\]
+		%
+		We can introduce an action-value function $\mathcal{Q}^\pi(x,u)$,
+		which describes the expected cost-to-go when we apply action $u$
+		in state $x$, and then follow policy $\pi$:
+		%
+		\[
+		\mathcal{Q}^\pi(x,u)=
+		\mathbb{E}_\pi\left[
+		\sum_{k=0}^{\infty}\gamma^k\ell(x_k,u_k)
+		\,\middle|\,
+		x_0=x,\ u_0=u
+		\right].
+		\]
+		%
+		The state-value and action-value functions are related by:
+		%
+		\[
+		V^\pi(x)=
+		\mathbb{E}_{u\sim\pi(\cdot|x)}
+		[\mathcal{Q}^\pi(x,u)].
+		\]
+		%
+		For the optimal policy:
+		%
+		\[
+		V^*(x)=\min_u \mathcal{Q}^*(x,u).
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Riccati equation with discounted cost}
+	\begin{flushleft}
+		
+		For stochastic LQR, the optimal value function is still quadratic:
+		\[
+		V^*(x)=x^\top Px+c.
+		\]
+		
+		Substituting this expression into the Bellman equation gives
+		the discounted algebraic Riccati equation:
+		
+		\[
+				P=Q+\gamma A^\top PA
+-\gamma^2 A^\top PB
+(R+\gamma B^\top PB)^{-1}
+B^\top PA.
+		\]
+		
+		The optimal control law is linear:
+		\[
+			u^*=-Kx,\qquad
+K=(R+\gamma B^\top PB)^{-1}
+\gamma B^\top PA.
+		\]
+		
+		The constant term accounts for the stochastic disturbances:
+		\[
+			c=\frac{\gamma}{1-\gamma}
+\operatorname{tr}(PW).
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{Literature}
+	\begin{itemize}
+		
+		\item MIT OpenCourseWare:
+		\bref{https://ocw.mit.edu/courses/16-323-principles-of-optimal-control-spring-2008/pages/lecture-notes/}
+		{Principles of Optimal Control: Lecture 3, Dynamic Programming and Discrete LQR.}
+		
+		\item Russ Tedrake -- MIT:
+		\bref{https://underactuated.mit.edu/lqr.html}
+		{Underactuated Robotics: Linear Quadratic Regulators, including the discrete-time Riccati equation.}
+		
+		\item University of Washington:
+		\bref{https://faculty.washington.edu/ratliffl/teaching/2020_LinearSystems.pdf}
+		{Lecture 10: Linear Quadratic Regulator -- Discrete Time.}
+		
+		\item SciPy documentation:
+		\bref{https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.solve_discrete_are.html}
+		{Linear Algebra: \texttt{solve\_discrete\_are}, numerical solution of the discrete-time algebraic Riccati equation.}
+		
+	\end{itemize}
+\end{frame}
+
+
+\myqrframe
+
+\begin{frame}{Appendix: Derivation of the stochastic Riccati equation}
+	\begin{flushleft}
+	Substitute the quadratic value function into Bellman's equation:
+	\[
+	\begin{aligned}
+		V_k(x)=\min_u\big\{&
+		x^\top Qx+u^\top Ru\\
+		&+\mathbb{E}[
+		(Ax+Bu+w_k)^\top P_{k+1}
+		(Ax+Bu+w_k)]\\
+		&+c_{k+1}\big\}.
+	\end{aligned}
+	\]
+	
+	Using $\mathbb{E}[w_k]=0$ and
+	$\mathbb{E}[w_kw_k^\top]=W$:
+	\[
+	\begin{aligned}
+		V_k(x)=\min_u\big\{&
+		x^\top Qx+u^\top Ru\\
+		&+(Ax+Bu)^\top P_{k+1}(Ax+Bu)\\
+		&+\operatorname{tr}(P_{k+1}W)+c_{k+1}
+		\big\}.
+	\end{aligned}
+	\]
+	
+	
+	Setting the derivative with respect to $u$ to zero gives
+	\[
+	u_k=-(R+B^\top P_{k+1}B)^{-1}
+	B^\top P_{k+1}Ax_k.
+	\]
+
+		\end{flushleft}
+\end{frame}
+
+\begin{frame}{Appendix: Riccati recursion}
+	\begin{flushleft}
+	
+	Substituting the optimal control law back into Bellman's equation,
+	we obtain:
+	\[
+	\begin{aligned}
+		P_k={}&Q+A^\top P_{k+1}A\\
+		&-A^\top P_{k+1}B
+		(R+B^\top P_{k+1}B)^{-1}
+		B^\top P_{k+1}A,
+	\end{aligned}
+	\]
+	
+	and
+	\[
+	c_k=c_{k+1}+\operatorname{tr}(P_{k+1}W).
+	\]
+	
+	The terminal conditions are
+	\[
+	P_N=Q_N,\qquad c_N=0.
+	\]
+	
+	\end{flushleft}
+\end{frame}
+
+
+
+
+
+\end{document}

@@ -1,0 +1,495 @@
+\documentclass{beamer}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\input{settings.tex}
+\usetikzlibrary{shapes.geometric, decorations.markings, positioning, patterns, calc, arrows.meta}
+
+\newcommand{\myqrframe}{
+	\begin{frame}
+		\begin{center}
+			\centerline{Слайды доступны на Github:}
+			\bigskip
+			\centerline{\mygit}
+			\bigskip
+			\myqr
+		\end{center}
+	\end{frame}
+}
+
+
+\subtitle{Современные методы управления роботами}
+\author{Сергей Савин}
+\date{2026}
+
+
+\title{Стохастическое уравнение Беллмана}
+\begin{document}
+	\maketitle
+	
+	
+	\begin{frame}{Содержание}
+		\begin{itemize}
+			\item Стохастические последовательности и математическое ожидание
+			\item Стохастические линейные системы
+			\item Конечногoризонтная стохастическая стоимость
+			\item Стохастическое уравнение Беллмана
+			\item Стохастическое уравнение Риккати
+			\item Бесконечногoризонтная стоимость с дисконтированием
+			\item Функции стоимости и функции ценности действия
+			\item Уравнения Беллмана и Риккати с дисконтированием
+			\item Приложение: вывод стохастического уравнения Риккати
+		\end{itemize}
+	\end{frame}
+	
+	
+	
+	%------------------------------------------------
+	\begin{frame}{Стохастические последовательности}
+		\begin{flushleft}
+			
+			{\small 
+			Пусть $w_k$ — случайная (стохастическая) последовательность с математическим ожиданием
+			\[
+			\mu = \mathbb{E}[w_k].
+			\]
+			
+			По $N$ выборкам можно оценить её математическое ожидание с помощью выборочного среднего:
+			\[
+			\hat{\mu}_N = \frac{1}{N}\sum_{i=k}^{k+N-1} w_i.
+			\]
+			
+			При соответствующих предположениях (например, независимые одинаково распределённые
+			выборки с конечным средним) имеем
+			\[
+			\lim_{N\to\infty}\hat{\mu}_N = \mathbb{E}[w_k].
+			\]
+			
+			
+			Математическое ожидание — линейный оператор. В частности, для постоянных матриц
+			$A,B$ и случайных векторов $x,u$:
+			\[
+			\boxed{
+				\mathbb{E}[Ax+Bu]
+				= A\mathbb{E}[x]+B\mathbb{E}[u]
+			}
+			\]
+		}
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	\begin{frame}{Стохастические линейные системы}
+		\begin{flushleft}
+			
+			Рассмотрим дискретную LTI-систему:
+			\[
+			x_{k+1}=Ax_k+w_k,
+			\]
+			где $w_k$ — элемент стохастической последовательности.
+			
+			Можно сделать следующие наблюдения:
+			
+			\begin{itemize}
+				\item Не зная реализации $w_k$, мы не можем предсказать
+				точное значение $x_{k+1}$.
+				
+				\item Следовательно, даже при известном начальном состоянии $x_{k+1}$
+				является случайной величиной.
+				
+				\item Хотя точные значения состояния предсказать нельзя, можно
+				анализировать их статистические свойства.
+			\end{itemize}
+			
+			\vspace{0.2cm}
+			
+			Например, используя линейность математического ожидания:
+			\[
+			\boxed{
+				\mathbb{E}[x_{k+1}]
+				= A\mathbb{E}[x_k]+\mathbb{E}[w_k]
+			}
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	\begin{frame}{Конечногoризонтная стохастическая стоимость}
+		\begin{flushleft}
+			
+			Введём квадратичную функцию стоимости, подходящую для
+			стохастической линейной системы:
+			\[
+			J = \mathbb{E}\left[
+			\sum_{k=0}^{N-1} \ell(x_k,u_k)
+			+ x_N^\top Q_N x_N
+			\right],
+			\]
+			где стоимость этапа
+			\[
+			\ell(x_k,u_k)
+			= x_k^\top Q x_k + u_k^\top R u_k.
+			\]
+			
+			Здесь $Q\succeq 0, Q_N\succeq 0$ и $R\succ 0$.
+			
+			\vspace{0.3cm}
+			
+			Как и в детерминированном случае, определим функцию стоимости
+			на шаге $k$ как минимальную ожидаемую стоимость до конца:
+			\[
+			\boxed{
+				V_k(x) =
+				\min_{u_k,\ldots,u_{N-1}}
+				\mathbb{E}\left[
+				\sum_{i=k}^{N-1}\ell(x_i,u_i)
+				+x_N^\top Q_N x_N
+				\,\middle|\, x_k=x
+				\right]
+			}
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	
+	
+	
+	%------------------------------------------------
+	\begin{frame}{Стохастическое уравнение Беллмана}
+		\begin{flushleft}
+			
+			Как и в детерминированном случае, можно использовать принцип Беллмана,
+			чтобы выразить функцию стоимости рекуррентно:
+			
+			\[
+			V_k(x_k) =
+			\min_{u_k}
+			\left\{
+			\ell(x_k,u_k)
+			+ \mathbb{E}\left[
+			V_{k+1}(x_{k+1}) \mid x_k,u_k
+			\right]
+			\right\}.
+			\]
+			
+			Для нашей стохастической линейной системы:
+			\[
+			x_{k+1}=Ax_k+Bu_k+w_k,
+			\]
+			получаем
+			\[
+			\boxed{
+				V_k(x) =
+				\min_u
+				\left\{
+				x^\top Qx+u^\top Ru
+				+\mathbb{E}\left[
+				V_{k+1}(Ax+Bu+w_k)
+				\right]
+				\right\}.
+			}
+			\]
+			
+			Терминальное условие:
+			\[
+			V_N(x)=x^\top Q_Nx.
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	\begin{frame}{Стохастическое уравнение Риккати}
+		\begin{flushleft}
+			Для невозмущённых независимых возмущений с нулевым средним и ковариацией
+			\[
+			\mathbb{E}[w_k]=0,\qquad
+			\mathbb{E}[w_kw_k^\top]=W,
+			\]
+			функция стоимости сохраняет квадратичную форму:
+			\[
+			\boxed{
+				V_k(x)=x^\top P_kx+c_k.
+			}
+			\]
+			
+			Подстановка этого выражения в уравнение Беллмана даёт
+			оптимальный линейный закон управления:
+			\[
+			u_k=K_kx_k,
+			\]
+			где
+			\[
+			K_k =
+			-(R+B^\top P_{k+1}B)^{-1}
+			B^\top P_{k+1}A.
+			\]
+			
+			Матрица $P_k$ находится с помощью рекурсии Риккати:
+			\[
+			P_k=Q+A^\top P_{k+1}A
+			-A^\top P_{k+1}B
+			(R+B^\top P_{k+1}B)^{-1}
+			B^\top P_{k+1}A.
+			\]
+			
+			с терминальным условием $P_N=Q_N$.
+		\end{flushleft}
+	\end{frame}
+	%------------------------------------------------
+	
+	
+	\begin{frame}{Бесконечногoризонтная стоимость}
+		\begin{flushleft}
+			
+				Можно рассмотреть бесконечногoризонтную версию стохастической
+				задачи оптимального управления.
+				
+				\bigskip
+				
+				Одна из проблем в том, что накопленная стоимость может стать бесконечной:
+				даже если система устойчива, постоянные стохастические возмущения
+				продолжают вносить неопределённость в состояние.
+				
+				
+		\end{flushleft}
+	\end{frame}
+	
+	
+	
+	\begin{frame}{Бесконечногoризонтная стоимость}
+		\begin{flushleft}
+			
+				
+				Один из способов справиться с этой проблемой — ввести коэффициент
+				дисконтирования $0 < \gamma < 1$:
+				
+				\[
+				\boxed{
+					J = \mathbb{E}\left[
+					\sum_{k=0}^{\infty}
+					\gamma^k \ell(x_k,u_k)
+					\right].
+				}
+				\]
+				
+				\vspace{0.2cm}
+				
+				\begin{itemize}
+					\item Дисконтирование позволяет ожидаемой накопленной стоимости оставаться
+					конечной при стандартных предположениях об ограниченности стоимости.
+					
+					\item Оно отдаёт приоритет немедленным затратам, постепенно
+					уменьшая важность затрат в более отдалённом будущем.
+					
+					\item Как и прежде, бесконечногoризонтная постановка не содержит терминальной
+					составляющей стоимости.
+				\end{itemize}
+			
+		\end{flushleft}
+	\end{frame}
+	
+	
+	
+	\begin{frame}{Функция стоимости с дисконтированной стоимостью}
+		\begin{flushleft}
+			
+			Для заданной политики $\pi$ определим функцию стоимости состояния
+			на политике как ожидаемую дисконтированную стоимость до конца:
+			
+			\[
+			V^\pi(x) =
+			\mathbb{E}_\pi\left[
+			\sum_{k=0}^{\infty}
+			\gamma^k \ell(x_k,u_k)
+			\,\middle|\, x_0=x
+			\right].
+			\]
+			
+			\vspace{0.3cm}
+			
+			Оптимальная функция стоимости состояния — минимум по всем
+			допустимым политикам:
+			
+			\[
+			V^*(x)=\min_\pi V^\pi(x).
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{Уравнение Беллмана с дисконтированной стоимостью}
+		\begin{flushleft}
+			
+			Уравнение оптимальности Беллмана для бесконечного горизонта имеет вид:
+			%
+			\[
+			V^*(x)=
+			\min_u\left\{
+			\ell(x,u)+
+			\gamma\mathbb{E}\left[
+			V^*(x_{k+1})\mid x_k=x,u_k=u
+			\right]
+			\right\}.
+			\]
+			%
+			Можно ввести функцию ценности действия $\mathcal{Q}^\pi(x,u)$,
+			которая описывает ожидаемую стоимость до конца, если применить действие $u$
+			в состоянии $x$, а затем следовать политике $\pi$:
+			%
+			\[
+			\mathcal{Q}^\pi(x,u)=
+			\mathbb{E}_\pi\left[
+			\sum_{k=0}^{\infty}\gamma^k\ell(x_k,u_k)
+			\,\middle|\,
+			x_0=x,\ u_0=u
+			\right].
+			\]
+			%
+			Функции стоимости состояния и ценности действия связаны соотношением:
+			%
+			\[
+			V^\pi(x)=
+			\mathbb{E}_{u\sim\pi(\cdot|x)}
+			[\mathcal{Q}^\pi(x,u)].
+			\]
+			%
+			Для оптимальной политики: $V^*(x)=\min_u \mathcal{Q}^*(x,u).$
+			%
+		\end{flushleft}
+	\end{frame}
+	
+	
+	\begin{frame}{Уравнение Риккати с дисконтированной стоимостью}
+		\begin{flushleft}
+			
+			Для стохастического LQR оптимальная функция стоимости по-прежнему квадратична:
+			\[
+			V^*(x)=x^\top Px+c.
+			\]
+			
+			Подстановка этого выражения в уравнение Беллмана даёт
+			дисконтированное алгебраическое уравнение Риккати:
+			
+			\[
+			P=Q+\gamma A^\top PA
+			-\gamma^2 A^\top PB
+			(R+\gamma B^\top PB)^{-1}
+			B^\top PA.
+			\]
+			
+			Оптимальный закон управления линеен:
+			\[
+			u^*=-Kx,\qquad
+			K=(R+\gamma B^\top PB)^{-1}
+			\gamma B^\top PA.
+			\]
+			
+			Постоянный член учитывает стохастические возмущения:
+			\[
+			c=\frac{\gamma}{1-\gamma}
+			\operatorname{tr}(PW).
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	
+	
+	
+	\begin{frame}{Литература}
+		\begin{itemize}
+			
+			\item MIT OpenCourseWare:
+			\bref{https://ocw.mit.edu/courses/16-323-principles-of-optimal-control-spring-2008/pages/lecture-notes/}
+			{Principles of Optimal Control: Lecture 3, Dynamic Programming and Discrete LQR.}
+			
+			\item Russ Tedrake -- MIT:
+			\bref{https://underactuated.mit.edu/lqr.html}
+			{Underactuated Robotics: Linear Quadratic Regulators, including the discrete-time Riccati equation.}
+			
+			\item University of Washington:
+			\bref{https://faculty.washington.edu/ratliffl/teaching/2020_LinearSystems.pdf}
+			{Lecture 10: Linear Quadratic Regulator -- Discrete Time.}
+			
+			\item SciPy documentation:
+			\bref{https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.solve_discrete_are.html}
+			{Linear Algebra: \texttt{solve\_discrete\_are}, numerical solution of the discrete-time algebraic Riccati equation.}
+			
+		\end{itemize}
+	\end{frame}
+	
+	
+	\myqrframe
+	
+	\begin{frame}{Приложение: вывод стохастического уравнения Риккати}
+		\begin{flushleft}
+			Подставим квадратичную функцию стоимости в уравнение Беллмана:
+			\[
+			\begin{aligned}
+				V_k(x)=\min_u\big\{&
+				x^\top Qx+u^\top Ru\\
+				&+\mathbb{E}[
+				(Ax+Bu+w_k)^\top P_{k+1}
+				(Ax+Bu+w_k)]\\
+				&+c_{k+1}\big\}.
+			\end{aligned}
+			\]
+			
+			Используя $\mathbb{E}[w_k]=0$ и
+			$\mathbb{E}[w_kw_k^\top]=W$:
+			\[
+			\begin{aligned}
+				V_k(x)=\min_u\big\{&
+				x^\top Qx+u^\top Ru\\
+				&+(Ax+Bu)^\top P_{k+1}(Ax+Bu)\\
+				&+\operatorname{tr}(P_{k+1}W)+c_{k+1}
+				\big\}.
+			\end{aligned}
+			\]
+			
+			
+			Приравнивая производную по $u$ к нулю, получаем
+			\[
+			u_k=-(R+B^\top P_{k+1}B)^{-1}
+			B^\top P_{k+1}Ax_k.
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{Приложение: рекурсия Риккати}
+		\begin{flushleft}
+			
+			Подставляя оптимальный закон управления обратно в уравнение Беллмана,
+			получаем:
+			\[
+			\begin{aligned}
+				P_k={}&Q+A^\top P_{k+1}A\\
+				&-A^\top P_{k+1}B
+				(R+B^\top P_{k+1}B)^{-1}
+				B^\top P_{k+1}A,
+			\end{aligned}
+			\]
+			
+			и
+			\[
+			c_k=c_{k+1}+\operatorname{tr}(P_{k+1}W).
+			\]
+			
+			Терминальные условия:
+			\[
+			P_N=Q_N,\qquad c_N=0.
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	
+	
+	
+	
+	
+\end{document}
