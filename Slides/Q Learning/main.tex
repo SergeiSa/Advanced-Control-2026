@@ -1,0 +1,367 @@
+\documentclass{beamer}
+
+\input{settings.tex}
+\usetikzlibrary{shapes.geometric, decorations.markings, positioning, patterns, calc, arrows.meta}
+
+
+\subtitle{Advanced Control}
+\author{by Sergei Savin}
+\centering
+\date{\mydate}
+
+
+
+\title{Q Learning}
+\begin{document}
+\maketitle
+
+
+\begin{frame}{Content}
+	\begin{itemize}
+		\item Model-based vs. model-free reinforcement learning
+		\item Terminology: from optimal control to RL
+		\item Return, rewards, and the discount factor
+		\item Action-value function $Q^\pi(s,a)$ and $Q^*(s,a)$
+		\item Bellman relation and the optimality equation
+		\item Optimal policy from $Q^*$
+		\item Temporal difference update (SARSA)
+		\item Q-learning (off-policy update)
+		\item Deep Q-learning (DQN)
+		\item Literature
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Reinforcement learning}
+	\begin{flushleft}
+		
+		\textbf{Model-based optimal control}
+		
+		We know the system model:
+		\[
+		x_{k+1}=f(x_k,u_k,w_k).
+		\]
+		This allows us to compute (or approximate) value functions
+		and derive an optimal control policy.
+		
+		\vspace{0.4cm}
+		
+		\textbf{Model-free reinforcement learning}
+		
+		We do not know the system model. Instead, we collect
+		observations and learn directly from data.
+		
+		\vspace{0.3cm}
+		
+		\begin{itemize}
+			\item We can learn value functions from observed transitions.
+			\item Once we know the optimal value function, finding
+			the optimal policy can be very simple.
+		\end{itemize}
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Terminology: connection to optimal control}
+	
+	\centering
+	\begin{tabular}{ll}
+		\textbf{Optimal control} & \textbf{Reinforcement learning} \\
+		\hline
+		System & Environment \\
+		Controller & Agent \\
+		State $x$ & State $s$ \\
+		Control input $u$ & Action $a$ \\
+		Stage cost $l(x,u)$ & Reward $r(s,a)$ \\
+		Cost $J$ (minimize) & Return $J$ (maximize) \\
+		Control law & Policy $\pi$
+	\end{tabular}
+	
+	\vspace{0.4cm}
+	
+	\begin{itemize}
+		\item The agent interacts with the environment.
+		\item The agent observes the state and chooses an action.
+		\item The environment evolves and provides a reward.
+	\end{itemize}
+	
+\end{frame}
+
+
+\begin{frame}{Return function and rewards}
+	\begin{flushleft}
+	The reward function
+	\[
+	r_k = r(s_k,a_k)
+	\]
+	describes the immediate reward associated with the current
+	state and action.
+	
+	\vspace{0.3cm}
+	
+	The discounted return from step $k$ is
+	\[
+	G_k =
+	\sum_{i=k}^{\infty}
+	\gamma^{i-k}r(s_i,a_i).
+	\]
+	
+	where $0<\gamma<1$ is the discount factor.
+	
+	\vspace{0.3cm}
+	
+	\begin{itemize}
+		\item Immediate rewards have the highest weight.
+		\item Future rewards are progressively discounted.
+		\item The goal is to maximize the expected return.
+	\end{itemize}
+	
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Action-value function}
+	
+	\begin{flushleft}
+	The \textbf{on-policy action-value function} is
+	\[
+	Q^\pi(s,a)=
+	\mathbb{E}_\pi\left[
+	\sum_{k=0}^{\infty}\gamma^k r_{t+k}
+	\;\middle|\;
+	s_t=s,\ a_t=a
+	\right].
+	\]
+	
+	\vspace{0.2cm}
+	
+	It describes the expected discounted return when:
+	\begin{itemize}
+		\item We take action $a$ in state $s$ now.
+		\item We follow policy $\pi$ afterwards.
+	\end{itemize}
+	
+	\vspace{0.3cm}
+	
+	The \textbf{optimal action-value function} is
+	\[
+	Q^*(s,a)=\max_\pi Q^\pi(s,a).
+	\]
+	
+	It describes the best expected discounted return achievable
+	when taking action $a$ in state $s$ and following an
+	optimal policy afterwards.
+	
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Bellman relation}
+	\begin{flushleft}
+	
+	We can decompose the discounted return:
+	\[
+	\begin{aligned}
+		G_k
+		&=r_k+\gamma r_{k+1}+\gamma^2r_{k+2}+\ldots\\
+		&=r_k+\gamma G_{k+1}.
+	\end{aligned}
+	\]
+	
+	\vspace{0.3cm}
+	
+	Taking the expectation gives the Bellman equation.
+	
+	\textbf{Policy evaluation:}
+	\[
+	Q^\pi(s,a)=
+	\mathbb{E}_\pi\left[
+	r+\gamma Q^\pi(s',a')
+	\right].
+	\]
+	
+	\vspace{0.2cm}
+	
+	\textbf{Optimality equation:}
+	\[
+	Q^*(s,a)=
+	\mathbb{E}\left[
+	r+\gamma\max_{a'}Q^*(s',a')
+	\right].
+	\]
+	
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Optimal policy}
+	\begin{flushleft}
+	
+	If we know the optimal action-value function,
+	we can obtain the optimal policy by selecting
+	the action with the highest $Q$-value.
+	
+	\[
+	\boxed{
+		\pi^*(s)=\arg\max_a Q^*(s,a)
+	}
+	\]
+	
+	\vspace{0.4cm}
+	
+	In other words, we choose the action that promises the highest
+			expected future return.
+
+	
+	\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{Temporal Difference Update}
+	\begin{flushleft}
+	
+	Recall the Bellman equation for policy evaluation:
+	\[
+	Q^\pi(s,a)=
+	\mathbb{E}_\pi\left[
+	r+\gamma Q^\pi(s',a')
+	\right].
+	\]
+	
+	\vspace{0.2cm}
+	
+	We do not know the expectation. Instead, we can use
+	an observed transition $(s,a,r,s',a')$.
+	
+	\vspace{0.2cm}
+	
+	We update our estimate of the action-value function:
+	\[
+	\boxed{
+		Q(s,a)\leftarrow Q(s,a)+\alpha
+		\underbrace{
+			\left[
+			r+\gamma Q(s',a')-Q(s,a)
+			\right]
+		}_{\text{TD error}}
+	}
+	\]
+	
+	where $\alpha$ is the learning rate.
+	
+	\medskip
+	
+	This is called SARSA update (State → Action → Reward → State → Action). It is an \emph{on policy} method: $a'$ is determined by the policy.
+	
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Q-learning}
+	\begin{flushleft}
+	
+	Recall the optimality equation:
+	\[
+	Q^*(s,a)=
+	\mathbb{E}\left[
+	r+\gamma\max_{a'}Q^*(s',a')
+	\right].
+	\]
+	
+	\vspace{0.2cm}
+	
+	We can use an observed transition to update our estimate:
+	\[
+	\boxed{
+		Q(s,a)\leftarrow Q(s,a)+\alpha
+		\left[
+		r+\gamma\max_{a'}Q(s',a')
+		-Q(s,a)
+		\right]
+	}
+	\]
+	
+	\vspace{0.3cm}
+	
+	This is the \textbf{Q-learning update}.  It is an \emph{off policy} method - we use the max over all actions to find $a'$, not policy.
+	
+	\vspace{0.2cm}
+	
+	\begin{itemize}
+		\item We observe a transition $(s,a,r,s')$.
+		\item We estimate the best future return using
+		$\max_{a'}Q(s',a')$.
+		\item We update our current estimate $Q(s,a)$.
+	\end{itemize}
+	
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Deep Q-learning}
+	\begin{flushleft}
+	
+	In many problems, representing $Q(s,a)$ as a table is
+	infeasible or undesirable.
+	
+	\vspace{0.3cm}
+	
+	Instead, we can approximate the action-value function
+	using an artificial neural network (ANN):
+	\[
+	Q(s,a) \approx Q_\theta(s,a),
+	\]
+	where $\theta$ denotes the network parameters.
+	
+	\vspace{0.3cm}
+	
+	\begin{itemize}
+		\item The ANN acts as a \textbf{critic}: it estimates
+		the expected future return for each action.
+		\item Instead of updating individual $Q$-values,
+		we update the parameters $\theta$ of the network.
+		\item This approach is called
+		\textbf{Deep Q-learning} or
+		\textbf{Deep Q-Network (DQN)}.
+	\end{itemize}
+	
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Literature}
+	\begin{itemize}
+		
+		\item Mnih et al. (2013):
+		\bref{https://arxiv.org/abs/1312.5602}
+		{Playing Atari with Deep Reinforcement Learning. Original Deep Q-Network (DQN) paper.}
+		
+		\item Hugging Face:
+		\bref{https://huggingface.co/learn/deep-rl-course/en/unit2/introduction}
+		{Deep Reinforcement Learning Course, Unit 2: Introduction to Q-Learning.}
+		
+		\item Hugging Face:
+		\bref{https://huggingface.co/learn/deep-rl-course/en/unit3/introduction}
+		{Deep Reinforcement Learning Course, Unit 3: Deep Q-Learning and DQN.}
+		
+		\item PyTorch documentation:
+		\bref{https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html}
+		{Reinforcement Learning (DQN) Tutorial: implementing DQN on the CartPole environment.}
+		
+		\item Stable-Baselines3:
+		\bref{https://stable-baselines3.readthedocs.io/en/master/modules/dqn.html}
+		{DQN documentation and reference implementation.}
+		
+	\end{itemize}
+\end{frame}
+
+
+\myqrframe
+
+
+
+
+
+
+\end{document}

@@ -1,0 +1,382 @@
+\documentclass{beamer}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\input{settings.tex}
+\usetikzlibrary{shapes.geometric, decorations.markings, positioning, patterns, calc, arrows.meta}
+
+\newcommand{\myqrframe}{
+	\begin{frame}
+		\begin{center}
+			\centerline{Слайды доступны на Github:}
+			\bigskip
+			\centerline{\mygit}
+			\bigskip
+			\myqr
+		\end{center}
+	\end{frame}
+}
+
+
+\subtitle{Современные методы управления роботами}
+\author{Сергей Савин}
+\date{2026}
+
+
+
+\title{Q-обучение}
+\begin{document}
+	\maketitle
+	
+	
+	\begin{frame}{Содержание}
+		\begin{itemize}
+			\item Обучение с подкреплением на основе модели и без модели
+			\item Терминология: от оптимального управления к RL
+			\item Возврат, награды и коэффициент дисконтирования
+			\item Функция ценности действия $Q^\pi(s,a)$ и $Q^*(s,a)$
+			\item Соотношение Беллмана и уравнение оптимальности
+			\item Оптимальная политика из $Q^*$
+			\item Временное разностное обновление (SARSA)
+			\item Q-обучение (off-policy обновление)
+			\item Глубокое Q-обучение (DQN)
+			\item Литература
+		\end{itemize}
+	\end{frame}
+	
+	
+	\begin{frame}{Обучение с подкреплением}
+		\begin{flushleft}
+			
+			\textbf{Оптимальное управление на основе модели}
+			
+			Мы знаем модель системы:
+			\[
+			x_{k+1}=f(x_k,u_k,w_k).
+			\]
+			Это позволяет нам вычислять (или приближать) функции ценности
+			и выводить оптимальную политику управления.
+			
+			\vspace{0.4cm}
+			
+			\textbf{Обучение с подкреплением без модели}
+			
+			Мы не знаем модель системы. Вместо этого мы собираем
+			наблюдения и учимся непосредственно на данных.
+			
+			\vspace{0.3cm}
+			
+			\begin{itemize}
+				\item Мы можем обучать функции ценности по наблюдаемым переходам.
+				\item Как только мы знаем оптимальную функцию ценности, нахождение
+				оптимальной политики может быть очень простым.
+			\end{itemize}
+		\end{flushleft}
+	\end{frame}
+	
+	
+	\begin{frame}{Терминология: связь с оптимальным управлением}
+		
+		\centering
+		\begin{tabular}{ll}
+			\textbf{Оптимальное управление} & \textbf{Обучение с подкреплением} \\
+			\hline
+			Система & Среда \\
+			Контроллер & Агент \\
+			Состояние $x$ & Состояние $s$ \\
+			Управляющее воздействие $u$ & Действие $a$ \\
+			Стоимость этапа $l(x,u)$ & Награда $r(s,a)$ \\
+			Стоимость $J$ (минимизировать) & Возврат $J$ (максимизировать) \\
+			Закон управления & Политика $\pi$
+		\end{tabular}
+		
+		\vspace{0.4cm}
+		
+		\begin{itemize}
+			\item Агент взаимодействует со средой.
+			\item Агент наблюдает состояние и выбирает действие.
+			\item Среда эволюционирует и выдаёт награду.
+		\end{itemize}
+		
+	\end{frame}
+	
+	
+	\begin{frame}{Функция возврата и награды}
+		\begin{flushleft}
+			Функция награды
+			\[
+			r_k = r(s_k,a_k)
+			\]
+			описывает немедленную награду, связанную с текущим
+			состоянием и действием.
+			
+			\vspace{0.3cm}
+			
+			Дисконтированный возврат с шага $k$ равен
+			\[
+			G_k =
+			\sum_{i=k}^{\infty}
+			\gamma^{i-k}r(s_i,a_i).
+			\]
+			
+			где $0<\gamma<1$ — коэффициент дисконтирования.
+			
+			\vspace{0.3cm}
+			
+			\begin{itemize}
+				\item Немедленные награды имеют наибольший вес.
+				\item Будущие награды прогрессивно дисконтируются.
+				\item Цель — максимизировать ожидаемый возврат.
+			\end{itemize}
+			
+		\end{flushleft}
+	\end{frame}
+	
+	
+	\begin{frame}{Функция ценности действия}
+		
+		\begin{flushleft}
+			\textbf{On-policy функция ценности действия} — это
+			\[
+			Q^\pi(s,a)=
+			\mathbb{E}_\pi\left[
+			\sum_{k=0}^{\infty}\gamma^k r_{t+k}
+			\;\middle|\;
+			s_t=s,\ a_t=a
+			\right].
+			\]
+			
+			\vspace{0.2cm}
+			
+			Она описывает ожидаемый дисконтированный возврат, когда:
+			\begin{itemize}
+				\item Мы берём действие $a$ в состоянии $s$ сейчас.
+				\item Мы следуем политике $\pi$ в дальнейшем.
+			\end{itemize}
+			
+			\vspace{0.3cm}
+			
+			\textbf{Оптимальная функция ценности действия} — это
+			\[
+			Q^*(s,a)=\max_\pi Q^\pi(s,a).
+			\]
+			
+			Она описывает наилучший ожидаемый дисконтированный возврат, достижимый
+			при взятии действия $a$ в состоянии $s$ и следовании
+			оптимальной политике в дальнейшем.
+			
+		\end{flushleft}
+	\end{frame}
+	
+	
+	\begin{frame}{Соотношение Беллмана}
+		\begin{flushleft}
+			
+			Мы можем разложить дисконтированный возврат:
+			\[
+			\begin{aligned}
+				G_k
+				&=r_k+\gamma r_{k+1}+\gamma^2r_{k+2}+\ldots\\
+				&=r_k+\gamma G_{k+1}.
+			\end{aligned}
+			\]
+			
+			\vspace{0.3cm}
+			
+			Взятие математического ожидания даёт уравнение Беллмана.
+			
+			\textbf{Оценка политики:}
+			\[
+			Q^\pi(s,a)=
+			\mathbb{E}_\pi\left[
+			r+\gamma Q^\pi(s',a')
+			\right].
+			\]
+			
+			\vspace{0.2cm}
+			
+			\textbf{Уравнение оптимальности:}
+			\[
+			Q^*(s,a)=
+			\mathbb{E}\left[
+			r+\gamma\max_{a'}Q^*(s',a')
+			\right].
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	
+	
+	\begin{frame}{Оптимальная политика}
+		\begin{flushleft}
+			
+			Если мы знаем оптимальную функцию ценности действия,
+			мы можем получить оптимальную политику, выбирая
+			действие с наибольшим $Q$-значением.
+			
+			\[
+			\boxed{
+				\pi^*(s)=\arg\max_a Q^*(s,a)
+			}
+			\]
+			
+			\vspace{0.4cm}
+			
+			Другими словами, мы выбираем действие, которое обещает наибольший
+			ожидаемый будущий возврат.
+			
+			
+		\end{flushleft}
+	\end{frame}
+	
+	
+	
+	\begin{frame}{Временное разностное обновление}
+		\begin{flushleft}
+			
+			Вспомним уравнение Беллмана для оценки политики:
+			\[
+			Q^\pi(s,a)=
+			\mathbb{E}_\pi\left[
+			r+\gamma Q^\pi(s',a')
+			\right].
+			\]
+			
+			\vspace{0.2cm}
+			
+			Мы не знаем математического ожидания. Вместо этого мы можем использовать
+			наблюдаемый переход $(s,a,r,s',a')$.
+			
+			\vspace{0.2cm}
+			
+			Мы обновляем нашу оценку функции ценности действия:
+			\[
+			\boxed{
+				Q(s,a)\leftarrow Q(s,a)+\alpha
+				\underbrace{
+					\left[
+					r+\gamma Q(s',a')-Q(s,a)
+					\right]
+				}_{\text{TD error}}
+			}
+			\]
+			
+			где $\alpha$ — скорость обучения.
+			
+			\medskip
+			
+			Это называется SARSA-обновлением (State → Action → Reward → State → Action). Это \emph{on-policy} метод: $a'$ определяется политикой.
+			
+		\end{flushleft}
+	\end{frame}
+	
+	
+	\begin{frame}{Q-обучение}
+		\begin{flushleft}
+			
+			Вспомним уравнение оптимальности:
+			\[
+			Q^*(s,a)=
+			\mathbb{E}\left[
+			r+\gamma\max_{a'}Q^*(s',a')
+			\right].
+			\]
+			
+			\vspace{0.2cm}
+			
+			Мы можем использовать наблюдаемый переход для обновления нашей оценки:
+			\[
+			\boxed{
+				Q(s,a)\leftarrow Q(s,a)+\alpha
+				\left[
+				r+\gamma\max_{a'}Q(s',a')
+				-Q(s,a)
+				\right]
+			}
+			\]
+			
+			\vspace{0.3cm}
+			
+			Это \textbf{Q-обучение}. Это \emph{off-policy} метод — мы используем максимум по всем действиям, чтобы найти $a'$, а не политику.
+			
+			\vspace{0.2cm}
+			
+			\begin{itemize}
+				\item Мы наблюдаем переход $(s,a,r,s')$.
+				\item Мы оцениваем наилучший будущий возврат, используя
+				$\max_{a'}Q(s',a')$.
+				\item Мы обновляем нашу текущую оценку $Q(s,a)$.
+			\end{itemize}
+			
+		\end{flushleft}
+	\end{frame}
+	
+	
+	\begin{frame}{Глубокое Q-обучение}
+		\begin{flushleft}
+			
+			Во многих задачах представление $Q(s,a)$ в виде таблицы
+			неосуществимо или нежелательно.
+			
+			\vspace{0.3cm}
+			
+			Вместо этого мы можем аппроксимировать функцию ценности действия
+			с помощью искусственной нейронной сети (ANN):
+			\[
+			Q(s,a) \approx Q_\theta(s,a),
+			\]
+			где $\theta$ обозначает параметры сети.
+			
+			\vspace{0.3cm}
+			
+			\begin{itemize}
+				\item ANN действует как \textbf{критик}: она оценивает
+				ожидаемый будущий возврат для каждого действия.
+				\item Вместо обновления отдельных $Q$-значений,
+				мы обновляем параметры $\theta$ сети.
+				\item Этот подход называется
+				\textbf{глубоким Q-обучением} или
+				\textbf{Deep Q-Network (DQN)}.
+			\end{itemize}
+			
+		\end{flushleft}
+	\end{frame}
+	
+	
+	\begin{frame}{Литература}
+		\begin{itemize}
+			
+			\item Mnih et al. (2013):
+			\bref{https://arxiv.org/abs/1312.5602}
+			{Playing Atari with Deep Reinforcement Learning. Original Deep Q-Network (DQN) paper.}
+			
+			\item Hugging Face:
+			\bref{https://huggingface.co/learn/deep-rl-course/en/unit2/introduction}
+			{Deep Reinforcement Learning Course, Unit 2: Introduction to Q-Learning.}
+			
+			\item Hugging Face:
+			\bref{https://huggingface.co/learn/deep-rl-course/en/unit3/introduction}
+			{Deep Reinforcement Learning Course, Unit 3: Deep Q-Learning and DQN.}
+			
+			\item PyTorch documentation:
+			\bref{https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html}
+			{Reinforcement Learning (DQN) Tutorial: implementing DQN on the CartPole environment.}
+			
+			\item Stable-Baselines3:
+			\bref{https://stable-baselines3.readthedocs.io/en/master/modules/dqn.html}
+			{DQN documentation and reference implementation.}
+			
+		\end{itemize}
+	\end{frame}
+	
+	
+	\myqrframe
+	
+	
+	
+	
+	
+	
+\end{document}
+

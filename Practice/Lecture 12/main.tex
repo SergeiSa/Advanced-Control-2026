@@ -1,0 +1,134 @@
+\documentclass{beamer}
+
+\input{settings.tex}
+\usetikzlibrary{shapes.geometric, decorations.markings, positioning, patterns, calc, arrows.meta}
+
+
+\subtitle{Advanced Control}
+\author{by Sergei Savin}
+\centering
+\date{\mydate}
+
+
+
+\title{Practice 12}
+\begin{document}
+\maketitle
+
+
+
+\begin{frame}{Bellman Equation --- Value Iteration}
+	\[
+	V_{k+1}(s)
+	=
+	\min_{a\in\mathcal{A}(s)}
+	\left[
+	c(s,a)
+	+
+	\gamma
+	\sum_{s'\in\mathcal{S}}
+	P(s'|s,a)V_k(s')
+	\right]
+	\]
+	
+	\vfill
+	\small
+	Iterative computation of the optimal value function in a Markov decision process.
+	Commonly used in dynamic programming and graph-based planning.
+\end{frame}
+
+
+\begin{frame}{Bellman Equation --- Finite-Horizon Optimal Control}
+	\[
+	V_k(x)
+	=
+	\min_{u_k}
+	\left[
+	\ell(x,u_k)
+	+
+	V_{k+1}\big(f(x,u_k)\big)
+	\right]
+	\]
+	
+	\[
+	V_N(x)=\phi(x)
+	\]
+	
+	\vfill
+	\small
+	Optimal control over a finite time interval with a prescribed terminal cost.
+	Provides the basis for deriving the discrete-time Riccati recursion in LQR.
+\end{frame}
+
+
+\begin{frame}{Bellman Equation --- Infinite-Horizon Optimal Control}
+	\[
+	V(x)
+	=
+	\min_{u}
+	\left[
+	\ell(x,u)
+	+
+	\gamma V\big(f(x,u)\big)
+	\right]
+	\]
+	
+	\vfill
+	\small
+	Optimal control over an infinite time horizon with discounted accumulated cost.
+	Provides the basis for the algebraic Riccati equation in infinite-horizon LQR.
+\end{frame}
+
+
+\begin{frame}{Bellman Equation --- Finite-Horizon Stochastic Optimal Control}
+	\[
+	V_k(x)
+	=
+	\min_{u_k}
+	\mathbb{E}_{w_k}
+	\left[
+	\ell(x,u_k,w_k)
+	+
+	V_{k+1}\big(f(x,u_k,w_k)\big)
+	\right]
+	\]
+	
+	\[
+	V_N(x)=\phi(x)
+	\]
+	
+	\vfill
+	\small
+	Optimal control over a finite time interval in the presence of stochastic disturbances.
+	The objective is to minimize the expected accumulated cost, including the terminal cost.
+\end{frame}
+
+
+\begin{frame}{Bellman Equation --- Infinite-Horizon Stochastic Optimal Control}
+	\[
+	V(x)
+	=
+	\min_{u}
+	\mathbb{E}_{w}
+	\left[
+	\ell(x,u,w)
+	+
+	\gamma V\big(f(x,u,w)\big)
+	\right]
+	\]
+	
+	\vfill
+	\small
+	Optimal control over an infinite time horizon in the presence of stochastic disturbances.
+	Minimizes the expected discounted accumulated cost.
+\end{frame}
+
+
+
+
+\myqrframe
+
+
+
+
+\end{document}

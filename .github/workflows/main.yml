@@ -71,6 +71,12 @@ jobs:
           root_file: main.tex
           working_directory: SlidesRU/BellmanLQR/
 
+      - name: Compile LaTeX document Qlearning
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: SlidesRU/Qlearning/
+
 
 
 
@@ -130,6 +136,12 @@ jobs:
           name: BellmanLQR.pdf
           path: SlidesRU/BellmanLQR/main.pdf
 
+      - name: Save Qlearning artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Qlearning.pdf
+          path: SlidesRU/Qlearning/main.pdf
+
 
 
       - name: Update compiled PDFs in git repository
@@ -144,6 +156,7 @@ jobs:
           mv SlidesRU/AdjointMethod/main.pdf SlidesRU/AdjointMethod.pdf
           mv SlidesRU/GraphSearch/main.pdf SlidesRU/GraphSearch.pdf
           mv SlidesRU/BellmanLQR/main.pdf SlidesRU/BellmanLQR.pdf
+          mv SlidesRU/Qlearning/main.pdf SlidesRU/Qlearning.pdf
 
 
 
@@ -158,6 +171,7 @@ jobs:
           git add SlidesRU/AdjointMethod.pdf
           git add SlidesRU/GraphSearch.pdf
           git add SlidesRU/BellmanLQR.pdf
+          git add SlidesRU/Qlearning.pdf
 
 
 
