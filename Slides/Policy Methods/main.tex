@@ -1,0 +1,456 @@
+\documentclass{beamer}
+
+\input{settings.tex}
+\usetikzlibrary{shapes.geometric, decorations.markings, positioning, patterns, calc, arrows.meta}
+
+
+\subtitle{Advanced Control}
+\author{by Sergei Savin}
+\centering
+\date{\mydate}
+
+
+
+\title{Policy Gradient Methods}
+\begin{document}
+\maketitle
+
+
+
+
+\begin{frame}{Log trick}
+	\begin{flushleft}
+		
+		In this lecture, we will use two properties of the logarithm.
+		
+		First:
+		\[
+		\frac{d}{dx}\log f(x)
+		=
+		\frac{1}{f(x)}\frac{df(x)}{dx}.
+		\]
+		
+		Therefore:
+		\[
+		\boxed{
+			\frac{df(x)}{dx}
+			=
+			f(x)\frac{d}{dx}\log f(x)
+		}
+		\]
+		
+		The same identity applies to gradients with respect to
+		a vector of parameters.
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Trajectories}
+	\begin{flushleft}
+		
+		A discrete trajectory $\tau$ is a sequence of states
+		and actions:
+		
+		\[
+		\tau=(s_0,a_0,s_1,a_1,\ldots,s_{T-1},a_{T-1},s_T).
+		\]
+		
+		In learning, we obtain a trajectory by running an episode:
+		
+		\begin{itemize}
+			\item Sample an initial state $s_0$.
+			\item Sample an action $a_t$ according to
+			the current policy $\pi_\theta(a_t|s_t)$.
+			\item Let the environment sample the next state
+			$s_{t+1}$ according to
+			$P(s_{t+1}|s_t,a_t)$.
+		\end{itemize}
+		
+		\vspace{0.2cm}
+		
+		\begin{itemize}
+			\item $\pi_\theta(a_t|s_t)$ determines the probability
+			of an action given the current state.
+			\item $P(s_{t+1}|s_t,a_t)$ determines the probability
+			of the next state given the current state and action.
+		\end{itemize}
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Reward for a trajectory}
+	\begin{flushleft}
+		
+		Knowing a trajectory $\tau$, we can compute the
+		total reward associated with it:
+		
+		\[
+		\boxed{
+			R(\tau)=\sum_{t=0}^{T-1}r(s_t,a_t)
+		}
+		\]
+		
+		\begin{itemize}
+			\item This is a deterministic quantity for a fixed
+			trajectory.
+			\item It is easy to compute from collected data:
+			we simply sum the rewards observed during an episode.
+		\end{itemize}
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Probability of a trajectory}
+	\begin{flushleft}
+		
+		Some trajectories are more likely than others,
+		given a specific policy.
+		
+		We can compute the probability of a trajectory as:
+		
+		\[
+		\boxed{
+			p_\theta(\tau)
+			=
+			p(s_0)
+			\prod_{t=0}^{T-1}
+			\pi_\theta(a_t|s_t)
+			P(s_{t+1}|s_t,a_t)
+		}
+		\]
+		
+		where $p(s_0)$ is the probability of the initial state.
+		
+		Each term describes one step of the trajectory:
+		the policy selects an action, and the environment
+		samples the next state.
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Simplification via logarithm}
+	\begin{flushleft}
+		
+		Remember that the logarithm transforms products into sums:
+		
+		\[
+		\log(fg)=\log f+\log g.
+		\]
+		
+		We can therefore write the log-probability of a trajectory as:
+		
+		\[
+		\boxed{
+			\begin{aligned}
+				\log p_\theta(\tau)
+				={}&\log p(s_0)\\
+				&+\sum_{t=0}^{T-1}\log\pi_\theta(a_t|s_t)\\
+				&+\sum_{t=0}^{T-1}
+				\log P(s_{t+1}|s_t,a_t).
+			\end{aligned}
+		}
+		\]
+		
+		This expression will make differentiation much easier.
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{Differentiating the probability of a trajectory}
+	\begin{flushleft}
+		
+		Using the log trick:
+		
+		\[
+		\nabla_\theta p_\theta(\tau)
+		=
+		p_\theta(\tau)
+		\nabla_\theta\log p_\theta(\tau).
+		\]
+		
+		Only the policy terms explicitly depend on $\theta$.
+		The initial-state distribution and environment dynamics
+		are assumed to be independent of the policy parameters.
+		
+		Therefore:
+		
+		\[
+		\boxed{
+			\nabla_\theta p_\theta(\tau)
+			=
+			p_\theta(\tau)
+			\sum_{t=0}^{T-1}
+			\nabla_\theta\log\pi_\theta(a_t|s_t)
+		}
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{REINFORCE (1/3)}
+	\begin{flushleft}
+		
+		We define the objective as the expected reward:
+		
+		\[
+		\boxed{
+			J(\theta)
+			=
+			\sum_\tau p_\theta(\tau)R(\tau)
+		}
+		\]
+		
+		where the summation is over all possible trajectories.
+		
+		Since the reward of a fixed trajectory does not
+		explicitly depend on the policy parameters:
+		
+		\[
+		\nabla_\theta J(\theta)
+		=
+		\sum_\tau
+		\nabla_\theta p_\theta(\tau)R(\tau).
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{REINFORCE (2/3)}
+	\begin{flushleft}
+		
+		Substituting our previous identity:
+		
+		\[
+		\begin{aligned}
+			\nabla_\theta J(\theta)
+			=
+			\sum_\tau
+			&p_\theta(\tau)R(\tau)\\
+			&\cdot
+			\sum_{t=0}^{T-1}
+			\nabla_\theta\log\pi_\theta(a_t|s_t).
+		\end{aligned}
+		\]
+		
+		Equivalently, using the definition of expectation:
+		
+		\[
+		\boxed{
+			\nabla_\theta J(\theta)
+			=
+			\mathbb{E}_{\tau\sim p_\theta}
+			\left[
+			R(\tau)
+			\sum_{t=0}^{T-1}
+			\nabla_\theta\log\pi_\theta(a_t|s_t)
+			\right]
+		}
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{REINFORCE (3/3)}
+	\begin{flushleft}
+		
+		We can estimate the gradient using a sampled trajectory:
+		
+		\[
+		\widehat{\nabla_\theta J}
+		=
+		R(\tau)
+		\sum_{t=0}^{T-1}
+		\nabla_\theta\log\pi_\theta(a_t|s_t).
+		\]
+		
+		We can then update the policy parameters using
+		gradient ascent:
+		
+		\[
+		\boxed{
+			\theta
+			\leftarrow
+			\theta+
+			\alpha R(\tau)
+			\sum_{t=0}^{T-1}
+			\nabla_\theta\log\pi_\theta(a_t|s_t)
+		}
+		\]
+		
+		This is the REINFORCE algorithm.
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+\begin{frame}{From trajectory reward to reward-to-go}
+	\begin{flushleft}
+		
+		Currently, we assign the same total trajectory reward
+		$R(\tau)$ to every action in the trajectory.
+		
+		Consider an action taken at time $t$.
+		Rewards obtained before that action cannot have been
+		influenced by it.
+		
+		Therefore, we can replace the total reward with
+		the reward-to-go:
+		
+		\[
+		\boxed{
+			G_t=\sum_{k=t}^{T-1}r(s_k,a_k)
+		}
+		\]
+		
+		The policy-gradient expression becomes:
+		
+		\[
+		\boxed{
+			\nabla_\theta J(\theta)
+			=
+			\mathbb{E}
+			\left[
+			\sum_{t=0}^{T-1}
+			G_t\nabla_\theta\log\pi_\theta(a_t|s_t)
+			\right]
+		}
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{From reward-to-go to advantage}
+	\begin{flushleft}
+		
+		The state-value and action-value functions are:
+		
+		\[
+		V^\pi(s_t)=\mathbb{E}[G_t|s_t],
+		\]
+		
+		\[
+		Q^\pi(s_t,a_t)=\mathbb{E}[G_t|s_t,a_t].
+		\]
+		
+		We can use them to define the advantage:
+		
+		\[
+		\boxed{
+			A^\pi(s_t,a_t)
+			=
+			Q^\pi(s_t,a_t)-V^\pi(s_t)
+		}
+		\]
+		
+		The advantage measures how much better an action
+		is compared with the average action in that state.
+		
+		We can replace reward-to-go with an advantage estimate
+		without changing the expected policy gradient:
+		
+		\[
+		\boxed{
+			\nabla_\theta J(\theta)
+			=
+			\mathbb{E}
+			\left[
+			\sum_{t=0}^{T-1}
+			A^\pi(s_t,a_t)
+			\nabla_\theta\log\pi_\theta(a_t|s_t)
+			\right]
+		}
+		\]
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{The probability ratio}
+	\begin{flushleft}
+		
+		Suppose we collected data using an old policy
+		$\pi_{\theta_{\mathrm{old}}}$, and we are now optimizing
+		a new policy $\pi_\theta$.
+		
+		We define the probability ratio:
+		
+		\[
+		\boxed{
+			r_t(\theta)
+			=
+			\frac{
+				\pi_\theta(a_t|s_t)
+			}{
+				\pi_{\theta_{\mathrm{old}}}(a_t|s_t)
+			}
+		}
+		\]
+		
+		This ratio tells us how much the new policy changes
+		the probability of an action compared with the old policy.
+		
+		\begin{itemize}
+			\item $r_t(\theta)>1$: the new policy makes the action
+			more likely.
+			\item $r_t(\theta)<1$: the new policy makes the action
+			less likely.
+			\item $r_t(\theta)=1$: the probability is unchanged.
+		\end{itemize}
+		
+	\end{flushleft}
+\end{frame}
+
+
+\begin{frame}{PPO clipping}
+	\begin{flushleft}
+		
+		We want to prevent excessively large policy changes.
+		
+		PPO uses the clipped objective:
+		
+		\[
+		\boxed{
+			\begin{aligned}
+				J^{\mathrm{CLIP}}(\theta)
+				=
+				\mathbb{E}_{\mathrm{old}}
+				\Big[
+				\min\big(&r_t(\theta)A_t,\\
+				&\operatorname{clip}
+				(r_t(\theta),1-\epsilon,1+\epsilon)A_t
+				\big)
+				\Big].
+			\end{aligned}
+		}
+		\]
+		
+		\begin{itemize}
+			\item The clipping limits the incentive to change
+			action probabilities too much.
+			\item $\epsilon$ determines the clipping interval.
+			\item The objective is maximized with respect to $\theta$.
+		\end{itemize}
+		
+	\end{flushleft}
+\end{frame}
+
+
+
+\myqrframe
+
+
+
+
+
+
+\end{document}

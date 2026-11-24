@@ -1,0 +1,452 @@
+\documentclass{beamer}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\input{settings.tex}
+\usetikzlibrary{shapes.geometric, decorations.markings, positioning, patterns, calc, arrows.meta}
+
+\newcommand{\myqrframe}{
+	\begin{frame}
+		\begin{center}
+			\centerline{Слайды доступны на Github:}
+			\bigskip
+			\centerline{\mygit}
+			\bigskip
+			\myqr
+		\end{center}
+	\end{frame}
+}
+
+
+\subtitle{Современные методы управления роботами}
+\author{Сергей Савин}
+\date{2026}
+
+
+\title{Методы градиента политики}
+\begin{document}
+	\maketitle
+	
+	\begin{frame}{Логарифмический трюк}
+		\begin{flushleft}
+			
+			В этой лекции мы будем использовать два свойства логарифма.
+			
+			Первое:
+			\[
+			\frac{d}{dx}\log f(x)
+			=
+			\frac{1}{f(x)}\frac{df(x)}{dx}.
+			\]
+			
+			Следовательно:
+			\[
+			\boxed{
+				\frac{df(x)}{dx}
+				=
+				f(x)\frac{d}{dx}\log f(x)
+			}
+			\]
+			
+			То же тождество применимо к градиентам по
+			вектору параметров.
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{Траектории}
+		\begin{flushleft}
+			
+			Дискретная траектория $\tau$ — это последовательность состояний
+			и действий:
+			
+			\[
+			\tau=(s_0,a_0,s_1,a_1,\ldots,s_{T-1},a_{T-1},s_T).
+			\]
+			
+			В обучении мы получаем траекторию, запуская эпизод:
+			
+			\begin{itemize}
+				\item Сэмплируем начальное состояние $s_0$.
+				\item Сэмплируем действие $a_t$ согласно
+				текущей политике $\pi_\theta(a_t|s_t)$.
+				\item Позволяем среде сэмплировать следующее состояние
+				$s_{t+1}$ согласно
+				$P(s_{t+1}|s_t,a_t)$.
+			\end{itemize}
+			
+			\vspace{0.2cm}
+			
+			\begin{itemize}
+				\item $\pi_\theta(a_t|s_t)$ определяет вероятность
+				действия при текущем состоянии.
+				\item $P(s_{t+1}|s_t,a_t)$ определяет вероятность
+				следующего состояния при текущем состоянии и действии.
+			\end{itemize}
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{Награда за траекторию}
+		\begin{flushleft}
+			
+			Зная траекторию $\tau$, мы можем вычислить
+			суммарную награду, связанную с ней:
+			
+			\[
+			\boxed{
+				R(\tau)=\sum_{t=0}^{T-1}r(s_t,a_t)
+			}
+			\]
+			
+			\begin{itemize}
+				\item Это детерминированная величина для фиксированной
+				траектории.
+				\item Её легко вычислить по собранным данным:
+				мы просто суммируем награды, наблюдаемые в течение эпизода.
+			\end{itemize}
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{Вероятность траектории}
+		\begin{flushleft}
+			
+			Некоторые траектории более вероятны, чем другие,
+			при заданной политике.
+			
+			Мы можем вычислить вероятность траектории как:
+			
+			\[
+			\boxed{
+				p_\theta(\tau)
+				=
+				p(s_0)
+				\prod_{t=0}^{T-1}
+				\pi_\theta(a_t|s_t)
+				P(s_{t+1}|s_t,a_t)
+			}
+			\]
+			
+			где $p(s_0)$ — вероятность начального состояния.
+			
+			Каждый член описывает один шаг траектории:
+			политика выбирает действие, а среда
+			сэмплирует следующее состояние.
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{Упрощение с помощью логарифма}
+		\begin{flushleft}
+			
+			Вспомним, что логарифм превращает произведения в суммы:
+			
+			\[
+			\log(fg)=\log f+\log g.
+			\]
+			
+			Поэтому мы можем записать логарифм вероятности траектории как:
+			
+			\[
+			\boxed{
+				\begin{aligned}
+					\log p_\theta(\tau)
+					={}&\log p(s_0)\\
+					&+\sum_{t=0}^{T-1}\log\pi_\theta(a_t|s_t)\\
+					&+\sum_{t=0}^{T-1}
+					\log P(s_{t+1}|s_t,a_t).
+				\end{aligned}
+			}
+			\]
+			
+			Это выражение сделает дифференцирование намного проще.
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{Дифференцирование вероятности траектории}
+		\begin{flushleft}
+			
+			Используя логарифмический трюк:
+			
+			\[
+			\nabla_\theta p_\theta(\tau)
+			=
+			p_\theta(\tau)
+			\nabla_\theta\log p_\theta(\tau).
+			\]
+			
+			Только члены политики явно зависят от $\theta$.
+			Предполагается, что распределение начального состояния и динамика среды
+			не зависят от параметров политики.
+			
+			Следовательно:
+			
+			\[
+			\boxed{
+				\nabla_\theta p_\theta(\tau)
+				=
+				p_\theta(\tau)
+				\sum_{t=0}^{T-1}
+				\nabla_\theta\log\pi_\theta(a_t|s_t)
+			}
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{REINFORCE (1/3)}
+		\begin{flushleft}
+			
+			Мы определяем целевую функцию как ожидаемую награду:
+			
+			\[
+			\boxed{
+				J(\theta)
+				=
+				\sum_\tau p_\theta(\tau)R(\tau)
+			}
+			\]
+			
+			где суммирование ведётся по всем возможным траекториям.
+			
+			Поскольку награда фиксированной траектории не
+			зависит явно от параметров политики:
+			
+			\[
+			\nabla_\theta J(\theta)
+			=
+			\sum_\tau
+			\nabla_\theta p_\theta(\tau)R(\tau).
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{REINFORCE (2/3)}
+		\begin{flushleft}
+			
+			Подставляя наше предыдущее тождество:
+			
+			\[
+			\begin{aligned}
+				\nabla_\theta J(\theta)
+				=
+				\sum_\tau
+				&R(\tau) p_\theta(\tau)
+				\sum_{t=0}^{T-1}
+				\nabla_\theta\log\pi_\theta(a_t|s_t).
+			\end{aligned}
+			\]
+			
+			Эквивалентно, используя определение математического ожидания:
+			
+			\[
+			\boxed{
+				\nabla_\theta J(\theta)
+				=
+				\mathbb{E}_{\tau\sim p_\theta}
+				\left[
+				R(\tau)
+				\sum_{t=0}^{T-1}
+				\nabla_\theta\log\pi_\theta(a_t|s_t)
+				\right]
+			}
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{REINFORCE (3/3)}
+		\begin{flushleft}
+			
+			Мы можем оценить градиент, используя сэмплированную траекторию:
+			
+			\[
+			\widehat{\nabla_\theta J}
+			=
+			R(\tau)
+			\sum_{t=0}^{T-1}
+			\nabla_\theta\log\pi_\theta(a_t|s_t).
+			\]
+			
+			Затем мы можем обновить параметры политики, используя
+			градиентный подъём:
+			
+			\[
+			\boxed{
+				\theta
+				\leftarrow
+				\theta+
+				\alpha R(\tau)
+				\sum_{t=0}^{T-1}
+				\nabla_\theta\log\pi_\theta(a_t|s_t)
+			}
+			\]
+			
+			Это алгоритм REINFORCE.
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{От награды за траекторию к награде-до-конца}
+		\begin{flushleft}
+			{\small 
+			В настоящее время мы приписываем одну и ту же суммарную награду
+			за траекторию $R(\tau)$ каждому действию в траектории.
+			
+			Рассмотрим действие, предпринятое в момент времени $t$.
+			Награды, полученные до этого действия, не могли быть
+			на него повлияны.
+			
+			Следовательно, мы можем заменить суммарную награду на
+			награду-до-конца:
+			
+			\[
+			\boxed{
+				G_t=\sum_{k=t}^{T-1}r(s_k,a_k)
+			}
+			\]
+			
+			Выражение для градиента политики принимает вид:
+			
+			\[
+			\boxed{
+				\nabla_\theta J(\theta)
+				=
+				\mathbb{E}
+				\left[
+				\sum_{t=0}^{T-1}
+				G_t\nabla_\theta\log\pi_\theta(a_t|s_t)
+				\right]
+			}
+			\]
+		}
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{От награды-до-конца к преимуществу}
+		\begin{flushleft}
+			
+			Функции ценности состояния и ценности действия:
+			
+			\[
+			V^\pi(s_t)=\mathbb{E}[G_t|s_t],
+			\]
+			
+			\[
+			Q^\pi(s_t,a_t)=\mathbb{E}[G_t|s_t,a_t].
+			\]
+			
+			Мы можем использовать их для определения преимущества:
+			%
+			\[
+			\boxed{
+				A^\pi(s_t,a_t)
+				=
+				Q^\pi(s_t,a_t)-V^\pi(s_t)
+			}
+			\]
+			
+			Преимущество измеряет, насколько лучше действие
+			по сравнению со средним действием в данном состоянии.
+			
+			Мы можем заменить награду-до-конца на оценку преимущества
+			без изменения ожидаемого градиента политики:
+			%
+			\[
+			\boxed{
+				\nabla_\theta J(\theta)
+				=
+				\mathbb{E}
+				\left[
+				\sum_{t=0}^{T-1}
+				A^\pi(s_t,a_t)
+				\nabla_\theta\log\pi_\theta(a_t|s_t)
+				\right]
+			}
+			\]
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{Отношение вероятностей}
+		\begin{flushleft}
+			
+			Предположим, мы собрали данные, используя старую политику
+			$\pi_{\theta_{\mathrm{old}}}$, и теперь оптимизируем
+			новую политику $\pi_\theta$.
+			
+			Мы определяем отношение вероятностей:
+			
+			\[
+			\boxed{
+				r_t(\theta)
+				=
+				\frac{
+					\pi_\theta(a_t|s_t)
+				}{
+					\pi_{\theta_{\mathrm{old}}}(a_t|s_t)
+				}
+			}
+			\]
+			
+			Это отношение говорит нам, насколько новая политика изменяет
+			вероятность действия по сравнению со старой политикой.
+			
+			\begin{itemize}
+				\item $r_t(\theta)>1$: новая политика делает действие
+				более вероятным.
+				\item $r_t(\theta)<1$: новая политика делает действие
+				менее вероятным.
+				\item $r_t(\theta)=1$: вероятность не изменилась.
+			\end{itemize}
+			
+		\end{flushleft}
+	\end{frame}
+	
+	\begin{frame}{Отсечение в PPO}
+		\begin{flushleft}
+			
+			Мы хотим предотвратить чрезмерно большие изменения политики.
+			
+			PPO использует отсечённую целевую функцию:
+			
+			\[
+			\boxed{
+				\begin{aligned}
+					J^{\mathrm{CLIP}}(\theta)
+					=
+					\mathbb{E}_{\mathrm{old}}
+					\Big[
+					\min\big(&r_t(\theta)A_t,\\
+					&\operatorname{clip}
+					(r_t(\theta),1-\epsilon,1+\epsilon)A_t
+					\big)
+					\Big].
+				\end{aligned}
+			}
+			\]
+			
+			\begin{itemize}
+				\item Отсечение ограничивает стимул слишком сильно изменять
+				вероятности действий.
+				\item $\epsilon$ определяет интервал отсечения.
+				\item Целевая функция максимизируется по $\theta$.
+			\end{itemize}
+			
+		\end{flushleft}
+	\end{frame}
+\end{document}
+	
+	\myqrframe
+	
+	
+	
+	
+	
+	
+\end{document}
+
