@@ -7,6 +7,12 @@
 * Lecture 5 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/TrajectoryPlanning.pdf
 * Lecture 6 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/ShootingCollocation.pdf
 * Lecture 7 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/AdjointMethod.pdf
+* Lecture 8 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/GraphSearch.pdf
+* Lecture 9 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/BellmanLQR.pdf
+* Lecture 10 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/StochasticBellman.pdf
+* Lecture 11 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/Qlearning.pdf
+* Lecture 12 - guest lecture
+* Lecture 13 - https://github.com/SergeiSa/Advanced-Control-2026/blob/main/SlidesRU/PolicyMethods.pdf
 
 # Slides (EN):
 * Lecture 1 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Control%20Theory%20Recap
@@ -16,6 +22,12 @@
 * Lecture 5 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Trajectory%20Planning
 * Lecture 6 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Shooting%20Collocation
 * Lecture 7 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Adjoint%20Method
+* Lecture 8 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/GraphSearch
+* Lecture 9 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/BellmanLQR
+* Lecture 10 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Stochastic%20Bellman
+* Lecture 11 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Q%20Learning
+* Lecture 12 - guest lecture
+* Lecture 13 - https://github.com/SergeiSa/Advanced-Control-2026/tree/main/Slides/Policy%20Methods
 
 # Reference material:
 
