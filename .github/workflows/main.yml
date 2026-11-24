@@ -77,6 +77,12 @@ jobs:
           root_file: main.tex
           working_directory: SlidesRU/Qlearning/
 
+      - name: Compile LaTeX document PolicyMethods
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: SlidesRU/PolicyMethods/
+
 
 
 
@@ -142,6 +148,12 @@ jobs:
           name: Qlearning.pdf
           path: SlidesRU/Qlearning/main.pdf
 
+      - name: Save PolicyMethods artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PolicyMethods.pdf
+          path: SlidesRU/PolicyMethods/main.pdf
+
 
 
       - name: Update compiled PDFs in git repository
@@ -157,6 +169,7 @@ jobs:
           mv SlidesRU/GraphSearch/main.pdf SlidesRU/GraphSearch.pdf
           mv SlidesRU/BellmanLQR/main.pdf SlidesRU/BellmanLQR.pdf
           mv SlidesRU/Qlearning/main.pdf SlidesRU/Qlearning.pdf
+          mv SlidesRU/PolicyMethods/main.pdf SlidesRU/PolicyMethods.pdf
 
 
 
@@ -172,6 +185,7 @@ jobs:
           git add SlidesRU/GraphSearch.pdf
           git add SlidesRU/BellmanLQR.pdf
           git add SlidesRU/Qlearning.pdf
+          git add SlidesRU/PolicyMethods.pdf
 
 
 
