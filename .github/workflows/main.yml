@@ -180,7 +180,7 @@ jobs:
           mv SlidesRU/AdjointMethod/main.pdf SlidesRU/AdjointMethod.pdf
           mv SlidesRU/GraphSearch/main.pdf SlidesRU/GraphSearch.pdf
           mv SlidesRU/BellmanLQR/main.pdf SlidesRU/BellmanLQR.pdf
-          mv SlidesRU/BellmanLQR/main.pdf SlidesRU/StochasticBellman.pdf
+          mv SlidesRU/StochasticBellman/main.pdf SlidesRU/StochasticBellman.pdf
           mv SlidesRU/Qlearning/main.pdf SlidesRU/Qlearning.pdf
           mv SlidesRU/PolicyMethods/main.pdf SlidesRU/PolicyMethods.pdf
 
